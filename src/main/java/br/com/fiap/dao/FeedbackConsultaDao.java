@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
-public class FeedbackConsultaDao implements AutoCloseable {
+public class FeedbackConsultaDao{
 
     @Inject
     private DataSource dataSource;
@@ -28,7 +28,12 @@ public class FeedbackConsultaDao implements AutoCloseable {
             ps.setInt(1, feedback.getConsulta().getCodigo());
             ps.setString(2, feedback.getComentario());
             ps.setDouble(3, feedback.getNota());
-            return ps.executeUpdate() > 0;
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    feedback.setCodigo(rs.getInt(1));
+                }
+            }
         }
     }
 
@@ -97,13 +102,13 @@ public class FeedbackConsultaDao implements AutoCloseable {
         }
     }
 
-    public void deletar(int id) throws SQLException {
+    public void deletar(int codigo) throws SQLException {
         String sql = "DELETE FROM T_JPS_FEEDBACK WHERE ID_FEEDBACK = ?";
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, id);
+            ps.setInt(1, codigo);
             if (ps.executeUpdate() == 0) {
                 throw new EntidadeNaoEncontradaException("Feedback não encontrado para remover!");
             }
@@ -119,7 +124,7 @@ public class FeedbackConsultaDao implements AutoCloseable {
         fb.setConsulta(consulta);
         fb.setComentario(rs.getString("DS_FEEDBACK"));
         fb.setNota(rs.getDouble("NT_FEEDBACK"));
+
         return fb;
     }
-
 }

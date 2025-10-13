@@ -1,35 +1,44 @@
 package br.com.fiap.dao;
 
-import br.com.fiap.factory.ConnectionFactory;
 import br.com.fiap.model.Funcionario;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FuncionarioDao implements AutoCloseable {
+@ApplicationScoped
+public class FuncionarioDao {
 
-    private final Connection conn;
+    @Inject
+    private DataSource dataSource;
 
-    public FuncionarioDao() throws SQLException, ClassNotFoundException {
-        this.conn = ConnectionFactory.getConnection();
-    }
-
-    public boolean inserir(Funcionario funcionario) throws SQLException {
+    public void inserir(Funcionario funcionario) throws SQLException {
         String sql = """
-            INSERT INTO T_JPS_FUNCIONARIO
-            (ID_FUNCIONARIO, NM_FUNCIONARIO, EM_FUNCIONARIO, CPF_FUNCIONARIO, IDD_FUNCIONARIO, TEL1_FUNCIONARIO, TEL2_FUNCIONARIO )
-            VALUES (SEQ_FUNCIONARIO.NEXTVAL, ?, ?, ?, ?, ?, ?)
-            """;
+                INSERT INTO T_JPS_FUNCIONARIO
+                (ID_FUNCIONARIO, NM_FUNCIONARIO, EM_FUNCIONARIO, CPF_FUNCIONARIO, IDD_FUNCIONARIO, TEL1_FUNCIONARIO, TEL2_FUNCIONARIO)
+                VALUES (SEQ_FUNCIONARIO.NEXTVAL, ?, ?, ?, ?, ?, ?)
+                """;
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, new String[]{"ID_FUNCIONARIO"})) {
+
             ps.setString(1, funcionario.getNome());
             ps.setString(2, funcionario.getEmail());
             ps.setString(3, funcionario.getCpf());
             ps.setInt(4, funcionario.getIdade());
             ps.setString(5, funcionario.getTelefone1());
             ps.setString(6, funcionario.getTelefone2());
-            return ps.executeUpdate() > 0;
+
+            ps.executeUpdate();
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    funcionario.setCodigo(rs.getInt(1));
+                }
+            }
         }
     }
 
@@ -37,87 +46,100 @@ public class FuncionarioDao implements AutoCloseable {
         List<Funcionario> funcionarios = new ArrayList<>();
         String sql = "SELECT * FROM T_JPS_FUNCIONARIO";
 
-        try (Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                funcionarios.add(mapResultSetToFuncionario(rs));
+                funcionarios.add(parseFuncionario(rs));
             }
         }
         return funcionarios;
     }
 
-    public Funcionario buscarPorCodigo(int codigo) throws SQLException {
+    public Funcionario buscarPorCodigo(int codigo) throws SQLException, EntidadeNaoEncontradaException {
         String sql = "SELECT * FROM T_JPS_FUNCIONARIO WHERE ID_FUNCIONARIO = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setInt(1, codigo);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToFuncionario(rs);
-                }
+            ResultSet rs = ps.executeQuery();
+
+            if (!rs.next()) {
+                throw new EntidadeNaoEncontradaException("Funcionário não encontrado!");
             }
+
+            return parseFuncionario(rs);
         }
-        return null;
     }
 
-    public Funcionario buscarPorCpf(String cpf) throws SQLException {
-        String sql = "SELECT * FROM T_JPS_FUNCIONARIO WHERE CPF_FUNCIONARIO=?";
+    public Funcionario buscarPorCpf(String cpf) throws SQLException, EntidadeNaoEncontradaException {
+        String sql = "SELECT * FROM T_JPS_FUNCIONARIO WHERE CPF_FUNCIONARIO = ?";
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setString(1, cpf);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToFuncionario(rs);
-                }
+            ResultSet rs = ps.executeQuery();
+
+            if (!rs.next()) {
+                throw new EntidadeNaoEncontradaException("CPF não encontrado!");
             }
+
+            return parseFuncionario(rs);
         }
-        return null;
     }
 
-    public Funcionario buscarPorEmail(String email) throws SQLException {
-        String sql = "SELECT * FROM T_JPS_FUNCIONARIO WHERE EM_FUNCIONARIO=?";
+    public Funcionario buscarPorEmail(String email) throws SQLException, EntidadeNaoEncontradaException {
+        String sql = "SELECT * FROM T_JPS_FUNCIONARIO WHERE EM_FUNCIONARIO = ?";
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setString(1, email);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToFuncionario(rs);
-                }
+            ResultSet rs = ps.executeQuery();
+
+            if (!rs.next()) {
+                throw new EntidadeNaoEncontradaException("E-mail não encontrado!");
             }
+
+            return parseFuncionario(rs);
         }
-        return null;
     }
 
-    public Funcionario buscarPorTelefone(String telefone1, String telefone2) throws SQLException {
+    public Funcionario buscarPorTelefone(String telefone) throws SQLException, EntidadeNaoEncontradaException {
         String sql = """
-        SELECT * FROM T_JPS_FUNCIONARIO 
-        WHERE (TEL1_FUNCIONARIO = ? OR TEL2_FUNCIONARIO = ?) 
-          OR (TEL1_FUNCIONARIO = ? OR TEL2_FUNCIONARIO = ?)
-        """;
+                SELECT * FROM T_JPS_FUNCIONARIO
+                WHERE TEL1_FUNCIONARIO = ? OR TEL2_FUNCIONARIO = ?
+                """;
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, telefone1);
-            ps.setString(2, telefone1);
-            ps.setString(3, telefone2);
-            ps.setString(4, telefone2);
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToFuncionario(rs);
-                }
+            ps.setString(1, telefone);
+            ps.setString(2, telefone);
+            ResultSet rs = ps.executeQuery();
+
+            if (!rs.next()) {
+                throw new EntidadeNaoEncontradaException("Telefone não encontrado!");
             }
+
+            return parseFuncionario(rs);
         }
-        return null;
     }
 
-    public boolean atualizar(Funcionario funcionario) throws SQLException {
+    public void atualizar(Funcionario funcionario) throws SQLException, EntidadeNaoEncontradaException {
         String sql = """
-            UPDATE T_JPS_FUNCIONARIO
-            SET NM_FUNCIONARIO=?, EM_FUNCIONARIO=?, CPF_FUNCIONARIO=?, IDD_FUNCIONARIO=?, TEL1_FUNCIONARIO=?, TEL2_FUNCIONARIO=?
-            WHERE ID_FUNCIONARIO=?
-            """;
+                UPDATE T_JPS_FUNCIONARIO
+                SET NM_FUNCIONARIO = ?, EM_FUNCIONARIO = ?, CPF_FUNCIONARIO = ?, IDD_FUNCIONARIO = ?, 
+                    TEL1_FUNCIONARIO = ?, TEL2_FUNCIONARIO = ?
+                WHERE ID_FUNCIONARIO = ?
+                """;
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setString(1, funcionario.getNome());
             ps.setString(2, funcionario.getEmail());
             ps.setString(3, funcionario.getCpf());
@@ -126,20 +148,26 @@ public class FuncionarioDao implements AutoCloseable {
             ps.setString(6, funcionario.getTelefone2());
             ps.setInt(7, funcionario.getCodigo());
 
-            return ps.executeUpdate() > 0;
+            if (ps.executeUpdate() == 0) {
+                throw new EntidadeNaoEncontradaException("Funcionário não encontrado para atualizar!");
+            }
         }
     }
 
-    public boolean deletar(int codigo) throws SQLException {
-        String sql = "DELETE FROM T_JPS_FUNCIONARIO WHERE ID_FUNCIONARIO=?";
+    public void deletar(int codigo) throws SQLException, EntidadeNaoEncontradaException {
+        String sql = "DELETE FROM T_JPS_FUNCIONARIO WHERE ID_FUNCIONARIO = ?";
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setInt(1, codigo);
-            return ps.executeUpdate() > 0;
+            if (ps.executeUpdate() == 0) {
+                throw new EntidadeNaoEncontradaException("Funcionário não encontrado para remover!");
+            }
         }
     }
 
-    private Funcionario mapResultSetToFuncionario(ResultSet rs) throws SQLException {
+    private Funcionario parseFuncionario(ResultSet rs) throws SQLException {
         return new Funcionario(
                 rs.getInt("ID_FUNCIONARIO"),
                 rs.getString("NM_FUNCIONARIO"),
@@ -149,12 +177,5 @@ public class FuncionarioDao implements AutoCloseable {
                 rs.getString("TEL1_FUNCIONARIO"),
                 rs.getString("TEL2_FUNCIONARIO")
         );
-    }
-
-    @Override
-    public void close() throws SQLException {
-        if (conn != null && !conn.isClosed()) {
-            conn.close();
-        }
     }
 }
