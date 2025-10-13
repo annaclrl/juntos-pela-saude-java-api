@@ -81,7 +81,6 @@ public class FeedbackConsultaDao{
             if (!rs.next()) {
                 throw new EntidadeNaoEncontradaException("Feedback não encontrado!");
             }
-
             return parseFeedback(rs);
         }
     }
