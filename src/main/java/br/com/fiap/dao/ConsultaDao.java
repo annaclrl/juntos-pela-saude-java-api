@@ -79,10 +79,10 @@ public class ConsultaDao {
         List<Consulta> consultas = new ArrayList<>();
 
         try (Connection conn = dataSource.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, medicoCodigo);
-            ResultSet rs = stmt.executeQuery();
+            ps.setInt(1, medicoCodigo);
+            ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 consultas.add(parseConsulta(rs));
@@ -97,10 +97,10 @@ public class ConsultaDao {
         List<Consulta> consultas = new ArrayList<>();
 
         try (Connection conn = dataSource.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, pacienteCodigo);
-            ResultSet rs = stmt.executeQuery();
+            ps.setInt(1, pacienteCodigo);
+            ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 consultas.add(parseConsulta(rs));
@@ -116,16 +116,16 @@ public class ConsultaDao {
                 "WHERE ID_CONSULTA = ?";
 
         try (Connection conn = dataSource.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, consulta.getPaciente().getCodigo());
-            stmt.setInt(2, consulta.getMedico().getCodigo());
-            stmt.setInt(3, consulta.getFuncionario().getCodigo());
-            stmt.setTimestamp(4, Timestamp.valueOf(consulta.getDataHora()));
-            stmt.setString(5, consulta.getStatus().getValorBanco());
-            stmt.setInt(6, consulta.getCodigo());
+            ps.setInt(1, consulta.getPaciente().getCodigo());
+            ps.setInt(2, consulta.getMedico().getCodigo());
+            ps.setInt(3, consulta.getFuncionario().getCodigo());
+            ps.setTimestamp(4, Timestamp.valueOf(consulta.getDataHora()));
+            ps.setString(5, consulta.getStatus().getValorBanco());
+            ps.setInt(6, consulta.getCodigo());
 
-            if (stmt.executeUpdate() == 0) {
+            if (ps.executeUpdate() == 0) {
                 throw new EntidadeNaoEncontradaException("Consulta não encontrada para atualizar!");
             }
         }
@@ -136,10 +136,10 @@ public class ConsultaDao {
         String sql = "DELETE FROM T_JPS_CONSULTA WHERE ID_CONSULTA = ?";
 
         try (Connection conn = dataSource.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, codigo);
-            if (stmt.executeUpdate() == 0) {
+            ps.setInt(1, codigo);
+            if (ps.executeUpdate() == 0) {
                 throw new EntidadeNaoEncontradaException("Consulta não encontrada para remover!");
             }
         }
