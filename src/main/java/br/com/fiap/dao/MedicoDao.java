@@ -16,7 +16,7 @@ public class MedicoDao {
     @Inject
     private DataSource dataSource;
 
-    public boolean inserir(Medico medico) throws SQLException {
+    public void inserir(Medico medico) throws SQLException {
         String sql = """
             INSERT INTO T_JPS_MEDICO 
             (ID_MEDICO, NM_MEDICO, EM_MEDICO, CPF_MEDICO, IDD_MEDICO, TEL1_MEDICO, TEL2_MEDICO, CRM_MEDICO, ESP_MEDICO)
@@ -35,17 +35,13 @@ public class MedicoDao {
             ps.setString(7, medico.getCrm());
             ps.setString(8, medico.getEspecialidade());
 
-            int linhas = ps.executeUpdate();
+            ps.executeUpdate();
 
-            if (linhas > 0) {
-                try (ResultSet rs = ps.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        medico.setCodigo(rs.getInt(1));
-                    }
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    medico.setCodigo(rs.getInt(1));
                 }
-                return true;
             }
-            return false;
         }
     }
 
