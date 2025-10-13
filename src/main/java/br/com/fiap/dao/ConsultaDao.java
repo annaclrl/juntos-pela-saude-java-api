@@ -1,35 +1,44 @@
 package br.com.fiap.dao;
 
-import br.com.fiap.factory.ConnectionFactory;
-import br.com.fiap.model.*;
 
+import br.com.fiap.model.*;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import oracle.jdbc.proxy.annotation.Pre;
+
+import javax.sql.DataSource;
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConsultaDao implements AutoCloseable  {
+@ApplicationScoped
+public class ConsultaDao {
 
-    private final Connection conn;
-
-    public ConsultaDao() throws SQLException, ClassNotFoundException {
-        this.conn = ConnectionFactory.getConnection();
-    }
+    @Inject
+    private DataSource dataSource;
 
     public boolean inserir(Consulta consulta) throws SQLException {
         String sql = """
-            INSERT INTO T_JPS_CONSULTA 
-            (ID_CONSULTA, ID_PACIENTE, ID_MEDICO, ID_FUNCIONARIO, DT_HR_CONSULTA, ST_CONSULTA)
-            VALUES (SEQ_CONSULTA.NEXTVAL, ?, ?, ?, ?,?)
-            """;
+                INSERT INTO T_JPS_CONSULTA 
+                (ID_CONSULTA, ID_PACIENTE, ID_MEDICO, ID_FUNCIONARIO, DT_HR_CONSULTA, ST_CONSULTA)
+                VALUES (SEQ_CONSULTA.NEXTVAL, ?, ?, ?, ?,?)
+                """;
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, new String[]{"ID_CONSULTA"})) {
             ps.setInt(1, consulta.getPaciente().getCodigo());
             ps.setInt(2, consulta.getMedico().getCodigo());
             ps.setInt(3, consulta.getFuncionario().getCodigo());
             ps.setTimestamp(4, Timestamp.valueOf(consulta.getDataHora()));
             ps.setString(5, consulta.getStatus().getValorBanco());
 
-            return ps.executeUpdate() > 0;
+            ps.executeUpdate();
+
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                consulta.setCodigo(rs.getInt(1));
+            }
         }
     }
 
@@ -37,11 +46,12 @@ public class ConsultaDao implements AutoCloseable  {
         List<Consulta> consultas = new ArrayList<>();
         String sql = "SELECT * FROM T_JPS_CONSULTA";
 
-        try (Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                consultas.add(mapResultSetToConsulta(rs));
+                consultas.add(parseConsulta(rs));
             }
         }
         return consultas;
@@ -49,76 +59,93 @@ public class ConsultaDao implements AutoCloseable  {
 
     public Consulta buscarPorCodigo(int codigo) throws SQLException {
         String sql = "SELECT * FROM T_JPS_CONSULTA WHERE ID_CONSULTA = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, codigo);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToConsulta(rs);
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setInt(1, codigo);
+
+                ps.setInt(1, codigo);
+                ResultSet rs = ps.executeQuery();
+
+                if (!rs.next()) {
+                    throw new EntidadeNaoEncontradaException("Consulta não encontrada!");
                 }
-            }
+
+                return parseConsulta(rs);
         }
-        return null;
     }
 
     public List<Consulta> listarPorMedico(int medicoCodigo) throws SQLException {
+        String sql = "SELECT * FROM T_JPS_CONSULTA WHERE ID_MEDICO = ?";
         List<Consulta> consultas = new ArrayList<>();
-        String sql = "SELECT * FROM T_JPS_CONSULTA WHERE ID_MEDICO=?";
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, medicoCodigo);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    consultas.add(mapResultSetToConsulta(rs));
-                }
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, medicoCodigo);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                consultas.add(parseConsulta(rs));
             }
         }
+
         return consultas;
     }
 
     public List<Consulta> listarPorPaciente(int pacienteCodigo) throws SQLException {
+        String sql = "SELECT * FROM T_JPS_CONSULTA WHERE ID_PACIENTE = ?";
         List<Consulta> consultas = new ArrayList<>();
-        String sql = "SELECT * FROM T_JPS_CONSULTA WHERE ID_PACIENTE=?";
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, pacienteCodigo);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    consultas.add(mapResultSetToConsulta(rs));
-                }
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, pacienteCodigo);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                consultas.add(parseConsulta(rs));
             }
         }
+
         return consultas;
     }
 
-    public boolean atualizar(Consulta consulta) throws SQLException {
-        String sql = """
-            UPDATE T_JPS_CONSULTA 
-            SET ID_PACIENTE=?, ID_MEDICO=?, ID_FUNCIONARIO=?, DT_HR_CONSULTA=?, ST_CONSULTA=?
-            WHERE ID_CONSULTA=?
-            """;
+    public void atualizar(Consulta consulta) throws SQLException, EntidadeNaoEncontradaException {
+        String sql = "UPDATE T_JPS_CONSULTA SET " +
+                "ID_PACIENTE = ?, ID_MEDICO = ?, ID_FUNCIONARIO = ?, DT_HR_CONSULTA = ?, ST_CONSULTA = ? " +
+                "WHERE ID_CONSULTA = ?";
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, consulta.getPaciente().getCodigo());
-            ps.setInt(2, consulta.getMedico().getCodigo());
-            ps.setInt(3,consulta.getFuncionario().getCodigo());
-            ps.setTimestamp(4, Timestamp.valueOf(consulta.getDataHora()));
-            ps.setString(5, consulta.getStatus().getValorBanco());
-            ps.setInt(6, consulta.getCodigo());
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            return ps.executeUpdate() > 0;
+            stmt.setInt(1, consulta.getPaciente().getCodigo());
+            stmt.setInt(2, consulta.getMedico().getCodigo());
+            stmt.setInt(3, consulta.getFuncionario().getCodigo());
+            stmt.setTimestamp(4, Timestamp.valueOf(consulta.getDataHora()));
+            stmt.setString(5, consulta.getStatus().getValorBanco());
+            stmt.setInt(6, consulta.getCodigo());
+
+            if (stmt.executeUpdate() == 0) {
+                throw new EntidadeNaoEncontradaException("Consulta não encontrada para atualizar!");
+            }
         }
     }
 
-    public boolean deletar(int codigo) throws SQLException {
-        String sql = "DELETE FROM T_JPS_CONSULTA WHERE ID_CONSULTA=?";
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, codigo);
-            return ps.executeUpdate() > 0;
+    public void deletar(int codigo) throws SQLException, EntidadeNaoEncontradaException {
+        String sql = "DELETE FROM T_JPS_CONSULTA WHERE ID_CONSULTA = ?";
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, codigo);
+            if (stmt.executeUpdate() == 0) {
+                throw new EntidadeNaoEncontradaException("Consulta não encontrada para remover!");
+            }
         }
     }
 
-    private Consulta mapResultSetToConsulta(ResultSet rs) throws SQLException {
+    private Consulta parseConsulta(ResultSet rs) throws SQLException {
         Paciente paciente = new Paciente();
         paciente.setCodigo(rs.getInt("ID_PACIENTE"));
 
@@ -128,29 +155,18 @@ public class ConsultaDao implements AutoCloseable  {
         Funcionario funcionario = new Funcionario();
         funcionario.setCodigo(rs.getInt("ID_FUNCIONARIO"));
 
-        String statusStr = rs.getString("ST_CONSULTA");
-        StatusConsulta status = null;
-        try {
-            status = StatusConsulta.fromDbValue(statusStr);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Status inválido no banco: " + statusStr);
-        }
+        StatusConsulta status = StatusConsulta.fromDbValue(rs.getString("ST_CONSULTA"));
+        LocalDateTime dataHora = rs.getTimestamp("DT_HR_CONSULTA").toLocalDateTime();
 
-        return new Consulta(
-                rs.getInt("ID_CONSULTA"),
-                paciente,
-                medico,
-                funcionario,
-                rs.getTimestamp("DT_HR_CONSULTA").toLocalDateTime(),
-                status
-        );
-    }
+        Consulta consulta = new Consulta();
+        consulta.setCodigo(rs.getInt("ID_CONSULTA"));
+        consulta.setPaciente(paciente);
+        consulta.setMedico(medico);
+        consulta.setFuncionario(funcionario);
+        consulta.setStatus(status);
+        consulta.setDataHora(dataHora);
 
-    @Override
-    public void close() throws SQLException {
-        if (conn != null && !conn.isClosed()) {
-            conn.close();
-        }
+        return consulta;
     }
 }
 
