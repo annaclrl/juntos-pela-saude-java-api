@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
-public class FeedbackConsultaDao{
+public class FeedbackConsultaDao {
 
     @Inject
     private DataSource dataSource;
@@ -26,9 +26,12 @@ public class FeedbackConsultaDao{
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, new String[]{"ID_FEEDBACK"})) {
+
             ps.setInt(1, feedback.getConsulta().getCodigo());
             ps.setString(2, feedback.getComentario());
             ps.setDouble(3, feedback.getNota());
+
+            ps.executeUpdate();
 
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
@@ -66,13 +69,13 @@ public class FeedbackConsultaDao{
             while (rs.next()) {
                 lista.add(parseFeedback(rs));
             }
-
         }
         return lista;
     }
 
     public FeedbackConsulta buscarPorCodigo(int codigo) throws SQLException, EntidadeNaoEncontradaException {
         String sql = "SELECT * FROM T_JPS_FEEDBACK WHERE ID_FEEDBACK = ?";
+
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
