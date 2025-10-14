@@ -1,5 +1,6 @@
 package br.com.fiap.dao;
 
+import br.com.fiap.exeption.EntidadeNaoEncontradaException;
 import br.com.fiap.model.Consulta;
 import br.com.fiap.model.FeedbackConsulta;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -16,7 +17,7 @@ public class FeedbackConsultaDao{
     @Inject
     private DataSource dataSource;
 
-    public boolean inserir(FeedbackConsulta feedback) throws SQLException {
+    public void inserir(FeedbackConsulta feedback) throws SQLException {
         String sql = """
                 INSERT INTO T_JPS_FEEDBACK
                 (ID_FEEDBACK, ID_CONSULTA, DS_FEEDBACK, NT_FEEDBACK)
@@ -101,7 +102,7 @@ public class FeedbackConsultaDao{
         }
     }
 
-    public void deletar(int codigo) throws SQLException {
+    public void deletar(int codigo) throws SQLException, EntidadeNaoEncontradaException {
         String sql = "DELETE FROM T_JPS_FEEDBACK WHERE ID_FEEDBACK = ?";
 
         try (Connection conn = dataSource.getConnection();

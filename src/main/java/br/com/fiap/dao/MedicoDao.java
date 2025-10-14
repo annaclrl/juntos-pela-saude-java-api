@@ -1,7 +1,7 @@
 package br.com.fiap.dao;
 
+import br.com.fiap.exeption.EntidadeNaoEncontradaException;
 import br.com.fiap.model.Medico;
-import br.com.fiap.exception.EntidadeNaoEncontradaException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 

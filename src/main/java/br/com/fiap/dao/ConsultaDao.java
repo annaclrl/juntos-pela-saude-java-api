@@ -1,6 +1,7 @@
 package br.com.fiap.dao;
 
 
+import br.com.fiap.exeption.EntidadeNaoEncontradaException;
 import br.com.fiap.model.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -18,7 +19,7 @@ public class ConsultaDao {
     @Inject
     private DataSource dataSource;
 
-    public boolean inserir(Consulta consulta) throws SQLException {
+    public void inserir(Consulta consulta) throws SQLException {
         String sql = """
                 INSERT INTO T_JPS_CONSULTA 
                 (ID_CONSULTA, ID_PACIENTE, ID_MEDICO, ID_FUNCIONARIO, DT_HR_CONSULTA, ST_CONSULTA)
@@ -57,7 +58,7 @@ public class ConsultaDao {
         return consultas;
     }
 
-    public Consulta buscarPorCodigo(int codigo) throws SQLException {
+    public Consulta buscarPorCodigo(int codigo) throws SQLException, EntidadeNaoEncontradaException {
         String sql = "SELECT * FROM T_JPS_CONSULTA WHERE ID_CONSULTA = ?";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

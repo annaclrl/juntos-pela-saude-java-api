@@ -1,6 +1,7 @@
 package br.com.fiap.dao;
 
 
+import br.com.fiap.exeption.EntidadeNaoEncontradaException;
 import br.com.fiap.model.Paciente;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -157,7 +158,7 @@ public class PacienteDao{
         }
     }
 
-    public boolean deletar(int codigo) throws SQLException, EntidadeNaoEncontradaException {
+    public void deletar(int codigo) throws SQLException, EntidadeNaoEncontradaException {
         String sql = "DELETE FROM T_JPS_PACIENTE WHERE ID_PACIENTE=?";
 
         try (Connection conn = dataSource.getConnection();
