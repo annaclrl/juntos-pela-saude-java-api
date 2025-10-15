@@ -112,8 +112,7 @@ public class PacienteDao{
     public Paciente buscarPorTelefone(String telefone1, String telefone2) throws SQLException, EntidadeNaoEncontradaException {
         String sql = """
                 SELECT * FROM T_JPS_PACIENTE 
-                WHERE (TEL1_PACIENTE = ? OR TEL2_PACIENTE = ?) 
-                  OR (TEL1_PACIENTE = ? OR TEL2_PACIENTE = ?)
+                WHERE TEL1_PACIENTE IN (?, ?) OR TEL2_PACIENTE IN (?, ?)
                 """;
 
         try (Connection conn = dataSource.getConnection();
@@ -151,7 +150,7 @@ public class PacienteDao{
             ps.setInt(7, paciente.getCodigo());
 
             if (ps.executeUpdate() == 0) {
-                throw new EntidadeNaoEncontradaException("Médico não encontrado para atualizar!");
+                throw new EntidadeNaoEncontradaException("Paciente não encontrado para atualizar!");
             }
 
             return true;
@@ -167,7 +166,7 @@ public class PacienteDao{
             ps.setInt(1, codigo);
 
             if (ps.executeUpdate() == 0) {
-                throw new EntidadeNaoEncontradaException("Médico não encontrado para remover!");
+                throw new EntidadeNaoEncontradaException("Paciente não encontrado para remover!");
             }
         }
     }
