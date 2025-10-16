@@ -1,14 +1,13 @@
 package br.com.fiap.resource;
 
-import br.com.fiap.dao.MedicoDao;
-import br.com.fiap.exeption.EntidadeNaoEncontradaException;
 import br.com.fiap.model.Medico;
+import br.com.fiap.service.MedicoService;
+import br.com.fiap.exeption.EntidadeNaoEncontradaException;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.*;
 
-import java.sql.SQLException;
+import java.net.URI;
 import java.util.List;
 
 @Path("/medicos")
@@ -17,15 +16,15 @@ import java.util.List;
 public class MedicoResource {
 
     @Inject
-    private MedicoDao medicoDao;
+    private MedicoService medicoService;
 
     @GET
     public Response listarTodos() {
         try {
-            List<Medico> medicos = medicoDao.listarTodos();
+            List<Medico> medicos = medicoService.listarMedicos();
             return Response.ok(medicos).build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+        } catch (Exception e) {
+            return Response.serverError()
                     .entity("Erro ao listar médicos: " + e.getMessage())
                     .build();
         }
@@ -33,16 +32,18 @@ public class MedicoResource {
 
     @GET
     @Path("/{id}")
-    public Response buscarPorId(@PathParam("id") int id) {
+    public Response buscarPorCodigo(@PathParam("id") int id) {
         try {
-            Medico medico = medicoDao.buscarPorCodigo(id);
+            Medico medico = medicoService.buscarPorCodigo(id);
             return Response.ok(medico).build();
         } catch (EntidadeNaoEncontradaException e) {
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity(e.getMessage()).build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erro ao buscar médico: " + e.getMessage()).build();
+                    .entity(e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            return Response.serverError()
+                    .entity("Erro ao buscar médico: " + e.getMessage())
+                    .build();
         }
     }
 
@@ -50,13 +51,16 @@ public class MedicoResource {
     @Path("/crm/{crm}")
     public Response buscarPorCrm(@PathParam("crm") String crm) {
         try {
-            Medico medico = medicoDao.buscarPorCrm(crm);
+            Medico medico = medicoService.buscarPorCrm(crm);
             return Response.ok(medico).build();
         } catch (EntidadeNaoEncontradaException e) {
-            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erro ao buscar médico por CRM: " + e.getMessage()).build();
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            return Response.serverError()
+                    .entity("Erro ao buscar médico por CRM: " + e.getMessage())
+                    .build();
         }
     }
 
@@ -64,13 +68,16 @@ public class MedicoResource {
     @Path("/cpf/{cpf}")
     public Response buscarPorCpf(@PathParam("cpf") String cpf) {
         try {
-            Medico medico = medicoDao.buscarPorCpf(cpf);
+            Medico medico = medicoService.buscarPorCpf(cpf);
             return Response.ok(medico).build();
         } catch (EntidadeNaoEncontradaException e) {
-            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erro ao buscar médico por CPF: " + e.getMessage()).build();
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            return Response.serverError()
+                    .entity("Erro ao buscar médico por CPF: " + e.getMessage())
+                    .build();
         }
     }
 
@@ -78,24 +85,35 @@ public class MedicoResource {
     @Path("/email/{email}")
     public Response buscarPorEmail(@PathParam("email") String email) {
         try {
-            Medico medico = medicoDao.buscarPorEmail(email);
+            Medico medico = medicoService.buscarPorEmail(email);
             return Response.ok(medico).build();
         } catch (EntidadeNaoEncontradaException e) {
-            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erro ao buscar médico por e-mail: " + e.getMessage()).build();
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            return Response.serverError()
+                    .entity("Erro ao buscar médico por e-mail: " + e.getMessage())
+                    .build();
         }
     }
 
     @POST
-    public Response inserir(Medico medico) {
+    public Response inserir(Medico medico, @Context UriInfo uriInfo) {
         try {
-            medicoDao.inserir(medico);
-            return Response.status(Response.Status.CREATED).entity(medico).build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erro ao cadastrar médico: " + e.getMessage()).build();
+            medicoService.cadastrarMedico(medico);
+            URI uri = uriInfo.getAbsolutePathBuilder()
+                    .path(String.valueOf(medico.getCodigo()))
+                    .build();
+            return Response.created(uri).entity(medico).build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            return Response.serverError()
+                    .entity("Erro ao cadastrar médico: " + e.getMessage())
+                    .build();
         }
     }
 
@@ -104,14 +122,20 @@ public class MedicoResource {
     public Response atualizar(@PathParam("id") int id, Medico medico) {
         try {
             medico.setCodigo(id);
-            medicoDao.atualizar(medico);
+            medicoService.atualizarMedico(medico);
             return Response.ok(medico).build();
         } catch (EntidadeNaoEncontradaException e) {
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity(e.getMessage()).build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erro ao atualizar médico: " + e.getMessage()).build();
+                    .entity(e.getMessage())
+                    .build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            return Response.serverError()
+                    .entity("Erro ao atualizar médico: " + e.getMessage())
+                    .build();
         }
     }
 
@@ -119,15 +143,16 @@ public class MedicoResource {
     @Path("/{id}")
     public Response deletar(@PathParam("id") int id) {
         try {
-            medicoDao.deletar(id);
+            medicoService.deletarMedico(id);
             return Response.noContent().build();
         } catch (EntidadeNaoEncontradaException e) {
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity(e.getMessage()).build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erro ao deletar médico: " + e.getMessage()).build();
+                    .entity(e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            return Response.serverError()
+                    .entity("Erro ao deletar médico: " + e.getMessage())
+                    .build();
         }
     }
 }
-

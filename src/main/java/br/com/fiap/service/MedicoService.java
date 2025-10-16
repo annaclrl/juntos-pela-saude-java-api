@@ -1,108 +1,94 @@
 package br.com.fiap.service;
 
 import br.com.fiap.dao.MedicoDao;
+import br.com.fiap.exeption.EntidadeNaoEncontradaException;
 import br.com.fiap.model.Medico;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import java.sql.SQLException;
 import java.util.List;
 
+@ApplicationScoped
 public class MedicoService {
 
-    private final MedicoDao medicoDao;
-    private final ValidationService validationService;
+    @Inject
+    private MedicoDao medicoDao;
 
-    public MedicoService() throws SQLException, ClassNotFoundException {
-        this.medicoDao = new MedicoDao();
-        this.validationService = new ValidationService();
+    @Inject
+    private ValidationService validationService;
+
+    public void cadastrarMedico(Medico medico) throws Exception {
+        validarMedico(medico);
+
+        try {
+            if (medicoDao.buscarPorCpf(medico.getCpf()) != null)
+                throw new Exception("CPF já cadastrado");
+        } catch (EntidadeNaoEncontradaException ignored) {
+        }
+
+        try {
+            if (medicoDao.buscarPorEmail(medico.getEmail()) != null)
+                throw new Exception("Email já cadastrado");
+        } catch (EntidadeNaoEncontradaException ignored) {
+        }
+
+        try {
+            if (medicoDao.buscarPorTelefone(medico.getTelefone1(), medico.getTelefone2()) != null)
+                throw new Exception("Telefone já cadastrado");
+        } catch (EntidadeNaoEncontradaException ignored) {
+        }
+
+        try {
+            if (medicoDao.buscarPorCrm(medico.getCrm()) != null)
+                throw new Exception("CRM já cadastrado");
+        } catch (EntidadeNaoEncontradaException ignored) {
+        }
+
+        medicoDao.inserir(medico);
     }
 
-    private boolean validarMedico(Medico medico) {
-        if (!validationService.validarNome(medico.getNome())) {
-            System.out.println("Nome inválido! Não deve conter números ou caracteres especiais.");
-            return false;
-        }
-
-        if (!validationService.validarCPF(medico.getCpf())) {
-            System.out.println("CPF inválido!");
-            return false;
-        }
-
-        if (!validationService.validarIdade(medico.getIdade())) {
-            System.out.println("Idade inválida! Deve estar entre 1 e 119.");
-            return false;
-        }
-
-        if (!validationService.validarEmail(medico.getEmail())) {
-            System.out.println("E-mail inválido!");
-            return false;
-        }
-
-        if (!validationService.validarTelefoneSecundario(medico.getTelefone1(), medico.getTelefone2())) {
-            System.out.println("O telefone secundário não pode ser igual ao telefone principal!");
-            return false;
-        }
-
-        if (medico.getCrm() == null || !medico.getCrm().matches("\\d{6}")) {
-            System.out.println("CRM inválido! Deve conter exatamente 6 dígitos numéricos.");
-            return false;
-        }
-
-        return true;
-    }
-
-    public boolean cadastrarMedico(Medico medico) throws SQLException {
-        if (!validarMedico(medico)) return false;
-
-        if (medicoDao.buscarPorCpf(medico.getCpf()) != null) {
-            System.out.println("Já existe um médico com este CPF!");
-            return false;
-        }
-
-        if (medicoDao.buscarPorEmail(medico.getEmail()) != null) {
-            System.out.println("Já existe um médico com este email!");
-            return false;
-        }
-
-        if (medicoDao.buscarPorTelefone(medico.getTelefone1(), medico.getTelefone2()) != null) {
-            System.out.println("Já existe um médico com estes telefones!");
-            return false;
-        }
-
-        if (medicoDao.buscarPorCrm(medico.getCrm()) != null) {
-            System.out.println("Já existe um médico com este CRM!");
-            return false;
-        }
-
-        if (medicoDao.buscarPorCrm(medico.getCrm()) != null) {
-            System.out.println("Já existe um médico com este CRM!");
-            return false;
-        }
-
-        return medicoDao.inserir(medico);
-    }
-
-    public boolean atualizarMedico(Medico medico) throws SQLException {
-        if (!validarMedico(medico)) return false;
-        return medicoDao.atualizar(medico);
+    private void validarMedico(Medico medico) throws Exception {
+        if (!validationService.validarNome(medico.getNome()))
+            throw new Exception("Nome inválido");
+        if (!validationService.validarCPF(medico.getCpf()))
+            throw new Exception("CPF inválido");
+        if (!validationService.validarIdade(medico.getIdade()))
+            throw new Exception("Idade inválida");
+        if (!validationService.validarEmail(medico.getEmail()))
+            throw new Exception("Email inválido");
+        if (!validationService.validarTelefoneSecundario(medico.getTelefone1(), medico.getTelefone2()))
+            throw new Exception("Telefone secundário igual ao principal");
+        if (medico.getCrm() == null || !medico.getCrm().matches("\\d{6}"))
+            throw new Exception("CRM inválido! Deve conter exatamente 6 dígitos numéricos.");
     }
 
     public List<Medico> listarMedicos() throws SQLException {
         return medicoDao.listarTodos();
     }
 
-    public Medico buscarPorCrm(String crm) throws SQLException {
+    public Medico buscarPorCrm(String crm) throws Exception {
         return medicoDao.buscarPorCrm(crm);
     }
 
-    public Medico buscarPorCodigo(int codigo) throws SQLException {
+    public Medico buscarPorCodigo(int codigo) throws Exception {
         return medicoDao.buscarPorCodigo(codigo);
     }
 
-    public boolean deletarMedico(int codigo) throws SQLException {
-        return medicoDao.deletar(codigo);
+    public Medico buscarPorCpf(String cpf) throws Exception {
+        return medicoDao.buscarPorCpf(cpf);
     }
 
-    public void close() throws SQLException {
-        medicoDao.close();
+    public Medico buscarPorEmail(String email) throws Exception {
+        return medicoDao.buscarPorEmail(email);
+    }
+
+    public boolean atualizarMedico(Medico medico) throws Exception {
+        validarMedico(medico);
+        return medicoDao.atualizar(medico);
+    }
+
+    public void deletarMedico(int codigo) throws Exception {
+        medicoDao.deletar(codigo);
     }
 }
