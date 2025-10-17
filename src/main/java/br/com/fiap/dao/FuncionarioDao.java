@@ -109,17 +109,19 @@ public class FuncionarioDao {
         }
     }
 
-    public Funcionario buscarPorTelefone(String telefone) throws SQLException, EntidadeNaoEncontradaException {
+    public Funcionario buscarPorTelefone(String telefone1, String telefone2) throws SQLException, EntidadeNaoEncontradaException {
         String sql = """
-                SELECT * FROM T_JPS_FUNCIONARIO
-                WHERE TEL1_FUNCIONARIO = ? OR TEL2_FUNCIONARIO = ?
+                SELECT * FROM T_JPS_FUNCIONARIO 
+                WHERE TEL1_FUNCIONARIO IN (?, ?) OR TEL2_FUNCIONARIO IN (?, ?)
                 """;
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, telefone);
-            ps.setString(2, telefone);
+            ps.setString(1, telefone1);
+            ps.setString(2, telefone1);
+            ps.setString(3, telefone2);
+            ps.setString(4, telefone2);
             ResultSet rs = ps.executeQuery();
 
             if (!rs.next()) {
@@ -130,7 +132,7 @@ public class FuncionarioDao {
         }
     }
 
-    public void atualizar(Funcionario funcionario) throws SQLException, EntidadeNaoEncontradaException {
+    public boolean atualizar(Funcionario funcionario) throws SQLException, EntidadeNaoEncontradaException {
         String sql = """
                 UPDATE T_JPS_FUNCIONARIO
                 SET NM_FUNCIONARIO = ?, EM_FUNCIONARIO = ?, CPF_FUNCIONARIO = ?, IDD_FUNCIONARIO = ?, 
@@ -152,6 +154,8 @@ public class FuncionarioDao {
             if (ps.executeUpdate() == 0) {
                 throw new EntidadeNaoEncontradaException("Funcionário não encontrado para atualizar!");
             }
+
+            return true;
         }
     }
 

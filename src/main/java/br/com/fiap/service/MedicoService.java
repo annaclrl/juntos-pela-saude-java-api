@@ -18,6 +18,21 @@ public class MedicoService {
     @Inject
     private ValidationService validationService;
 
+    private void validarMedico(Medico medico) throws Exception {
+        if (!validationService.validarNome(medico.getNome()))
+            throw new Exception("Nome inválido");
+        if (!validationService.validarCPF(medico.getCpf()))
+            throw new Exception("CPF inválido");
+        if (!validationService.validarIdade(medico.getIdade()))
+            throw new Exception("Idade inválida");
+        if (!validationService.validarEmail(medico.getEmail()))
+            throw new Exception("Email inválido");
+        if (!validationService.validarTelefoneSecundario(medico.getTelefone1(), medico.getTelefone2()))
+            throw new Exception("Telefone secundário igual ao principal");
+        if (medico.getCrm() == null || !medico.getCrm().matches("\\d{6}"))
+            throw new Exception("CRM inválido! Deve conter exatamente 6 dígitos numéricos.");
+    }
+
     public void cadastrarMedico(Medico medico) throws Exception {
         validarMedico(medico);
 
@@ -46,21 +61,6 @@ public class MedicoService {
         }
 
         medicoDao.inserir(medico);
-    }
-
-    private void validarMedico(Medico medico) throws Exception {
-        if (!validationService.validarNome(medico.getNome()))
-            throw new Exception("Nome inválido");
-        if (!validationService.validarCPF(medico.getCpf()))
-            throw new Exception("CPF inválido");
-        if (!validationService.validarIdade(medico.getIdade()))
-            throw new Exception("Idade inválida");
-        if (!validationService.validarEmail(medico.getEmail()))
-            throw new Exception("Email inválido");
-        if (!validationService.validarTelefoneSecundario(medico.getTelefone1(), medico.getTelefone2()))
-            throw new Exception("Telefone secundário igual ao principal");
-        if (medico.getCrm() == null || !medico.getCrm().matches("\\d{6}"))
-            throw new Exception("CRM inválido! Deve conter exatamente 6 dígitos numéricos.");
     }
 
     public List<Medico> listarMedicos() throws SQLException {

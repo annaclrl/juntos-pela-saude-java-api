@@ -19,6 +19,19 @@ public class PacienteService {
     @Inject
     private ValidationService validationService;
 
+    private void validarPaciente(Paciente paciente) throws Exception {
+        if (!validationService.validarNome(paciente.getNome()))
+            throw new Exception("Nome inválido");
+        if (!validationService.validarCPF(paciente.getCpf()))
+            throw new Exception("CPF inválido");
+        if (!validationService.validarIdade(paciente.getIdade()))
+            throw new Exception("Idade inválida");
+        if (!validationService.validarEmail(paciente.getEmail()))
+            throw new Exception("Email inválido");
+        if (!validationService.validarTelefoneSecundario(paciente.getTelefone1(), paciente.getTelefone2()))
+            throw new Exception("Telefone secundário igual ao principal");
+    }
+
     public void cadastrarPaciente(Paciente paciente) throws Exception {
         validarPaciente(paciente);
 
@@ -41,19 +54,6 @@ public class PacienteService {
         }
 
         pacienteDao.inserir(paciente);
-    }
-
-    private void validarPaciente(Paciente paciente) throws Exception {
-        if (!validationService.validarNome(paciente.getNome()))
-            throw new Exception("Nome inválido");
-        if (!validationService.validarCPF(paciente.getCpf()))
-            throw new Exception("CPF inválido");
-        if (!validationService.validarIdade(paciente.getIdade()))
-            throw new Exception("Idade inválida");
-        if (!validationService.validarEmail(paciente.getEmail()))
-            throw new Exception("Email inválido");
-        if (!validationService.validarTelefoneSecundario(paciente.getTelefone1(), paciente.getTelefone2()))
-            throw new Exception("Telefone secundário igual ao principal");
     }
 
     public List<Paciente> listarPacientes() throws SQLException {

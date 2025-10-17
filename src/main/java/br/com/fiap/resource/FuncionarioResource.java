@@ -1,14 +1,13 @@
 package br.com.fiap.resource;
 
-import br.com.fiap.dao.FuncionarioDao;
-import br.com.fiap.exeption.EntidadeNaoEncontradaException;
 import br.com.fiap.model.Funcionario;
+import br.com.fiap.service.FuncionarioService;
+import br.com.fiap.exeption.EntidadeNaoEncontradaException;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.*;
 
-import java.sql.SQLException;
+import java.net.URI;
 import java.util.List;
 
 @Path("/funcionarios")
@@ -17,15 +16,15 @@ import java.util.List;
 public class FuncionarioResource {
 
     @Inject
-    private FuncionarioDao funcionarioDao;
+    private FuncionarioService funcionarioService;
 
     @GET
     public Response listarTodos() {
         try {
-            List<Funcionario> funcionarios = funcionarioDao.listarTodos();
+            List<Funcionario> funcionarios = funcionarioService.listarFuncionarios();
             return Response.ok(funcionarios).build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+        } catch (Exception e) {
+            return Response.serverError()
                     .entity("Erro ao listar funcionários: " + e.getMessage())
                     .build();
         }
@@ -33,16 +32,18 @@ public class FuncionarioResource {
 
     @GET
     @Path("/{id}")
-    public Response buscarPorId(@PathParam("id") int id) {
+    public Response buscarPorCodigo(@PathParam("id") int id) {
         try {
-            Funcionario funcionario = funcionarioDao.buscarPorCodigo(id);
+            Funcionario funcionario = funcionarioService.buscarPorCodigo(id);
             return Response.ok(funcionario).build();
         } catch (EntidadeNaoEncontradaException e) {
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity(e.getMessage()).build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erro ao buscar funcionário: " + e.getMessage()).build();
+                    .entity(e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            return Response.serverError()
+                    .entity("Erro ao buscar funcionário: " + e.getMessage())
+                    .build();
         }
     }
 
@@ -50,14 +51,16 @@ public class FuncionarioResource {
     @Path("/cpf/{cpf}")
     public Response buscarPorCpf(@PathParam("cpf") String cpf) {
         try {
-            Funcionario funcionario = funcionarioDao.buscarPorCpf(cpf);
+            Funcionario funcionario = funcionarioService.buscarPorCpf(cpf);
             return Response.ok(funcionario).build();
         } catch (EntidadeNaoEncontradaException e) {
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity(e.getMessage()).build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erro ao buscar funcionário por CPF: " + e.getMessage()).build();
+                    .entity(e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            return Response.serverError()
+                    .entity("Erro ao buscar funcionário por CPF: " + e.getMessage())
+                    .build();
         }
     }
 
@@ -65,40 +68,35 @@ public class FuncionarioResource {
     @Path("/email/{email}")
     public Response buscarPorEmail(@PathParam("email") String email) {
         try {
-            Funcionario funcionario = funcionarioDao.buscarPorEmail(email);
+            Funcionario funcionario = funcionarioService.buscarPorEmail(email);
             return Response.ok(funcionario).build();
         } catch (EntidadeNaoEncontradaException e) {
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity(e.getMessage()).build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erro ao buscar funcionário por e-mail: " + e.getMessage()).build();
-        }
-    }
-
-    @GET
-    @Path("/telefone/{telefone}")
-    public Response buscarPorTelefone(@PathParam("telefone") String telefone) {
-        try {
-            Funcionario funcionario = funcionarioDao.buscarPorTelefone(telefone);
-            return Response.ok(funcionario).build();
-        } catch (EntidadeNaoEncontradaException e) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity(e.getMessage()).build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erro ao buscar funcionário por telefone: " + e.getMessage()).build();
+                    .entity(e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            return Response.serverError()
+                    .entity("Erro ao buscar funcionário por e-mail: " + e.getMessage())
+                    .build();
         }
     }
 
     @POST
-    public Response inserir(Funcionario funcionario) {
+    public Response inserir(Funcionario funcionario, @Context UriInfo uriInfo) {
         try {
-            funcionarioDao.inserir(funcionario);
-            return Response.status(Response.Status.CREATED).entity(funcionario).build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erro ao cadastrar funcionário: " + e.getMessage()).build();
+            funcionarioService.cadastrarFuncionario(funcionario);
+            URI uri = uriInfo.getAbsolutePathBuilder()
+                    .path(String.valueOf(funcionario.getCodigo()))
+                    .build();
+            return Response.created(uri).entity(funcionario).build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            return Response.serverError()
+                    .entity("Erro ao cadastrar funcionário: " + e.getMessage())
+                    .build();
         }
     }
 
@@ -107,14 +105,20 @@ public class FuncionarioResource {
     public Response atualizar(@PathParam("id") int id, Funcionario funcionario) {
         try {
             funcionario.setCodigo(id);
-            funcionarioDao.atualizar(funcionario);
+            funcionarioService.atualizarFuncionario(funcionario);
             return Response.ok(funcionario).build();
         } catch (EntidadeNaoEncontradaException e) {
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity(e.getMessage()).build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erro ao atualizar funcionário: " + e.getMessage()).build();
+                    .entity(e.getMessage())
+                    .build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            return Response.serverError()
+                    .entity("Erro ao atualizar funcionário: " + e.getMessage())
+                    .build();
         }
     }
 
@@ -122,15 +126,16 @@ public class FuncionarioResource {
     @Path("/{id}")
     public Response deletar(@PathParam("id") int id) {
         try {
-            funcionarioDao.deletar(id);
+            funcionarioService.deletarFuncionario(id);
             return Response.noContent().build();
         } catch (EntidadeNaoEncontradaException e) {
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity(e.getMessage()).build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erro ao deletar funcionário: " + e.getMessage()).build();
+                    .entity(e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            return Response.serverError()
+                    .entity("Erro ao deletar funcionário: " + e.getMessage())
+                    .build();
         }
     }
 }
-
