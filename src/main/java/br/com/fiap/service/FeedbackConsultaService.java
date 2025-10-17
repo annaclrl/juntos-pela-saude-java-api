@@ -2,64 +2,59 @@ package br.com.fiap.service;
 
 import br.com.fiap.dao.ConsultaDao;
 import br.com.fiap.dao.FeedbackConsultaDao;
+import br.com.fiap.exeption.EntidadeNaoEncontradaException;
 import br.com.fiap.model.FeedbackConsulta;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import java.sql.SQLException;
 import java.util.List;
 
-public class FeedbackConsultaService implements AutoCloseable {
+@ApplicationScoped
+public class FeedbackConsultaService {
 
-    private final FeedbackConsultaDao feedbackDao;
-    private final ConsultaDao consultaDao;
+    @Inject
+    private FeedbackConsultaDao feedbackDao;
 
-    public FeedbackConsultaService() throws SQLException, ClassNotFoundException {
-        this.feedbackDao = new FeedbackConsultaDao();
-        this.consultaDao = new ConsultaDao();
+    @Inject
+    private ConsultaDao consultaDao;
+
+    private void validarFeedback(FeedbackConsulta feedback) throws Exception {
+        if (!feedback.notaValida())
+            throw new Exception("Nota inválida! Deve ser entre 0 e 5.");
+
+        if (!feedback.comentarioValido())
+            throw new Exception("Comentário inválido! Máx. 100 caracteres.");
+
+        if (feedback.getConsulta() == null || feedback.getConsulta().getCodigo() <= 0)
+            throw new Exception("Consulta inválida!");
+
+        try {
+            if (consultaDao.buscarPorCodigo(feedback.getConsulta().getCodigo()) == null)
+                throw new Exception("Consulta não encontrada!");
+        } catch (EntidadeNaoEncontradaException ignored) {
+            throw new Exception("Consulta não encontrada!");
+        }
+
+        try {
+            if (!feedbackDao.listarPorConsulta(feedback.getConsulta().getCodigo()).isEmpty())
+                throw new Exception("Você já deu um feedback para esta consulta!");
+        } catch (SQLException ignored) {
+        }
     }
 
-    private boolean validarFeedback(FeedbackConsulta feedback) throws SQLException {
-        if (!feedback.notaValida()) {
-            System.out.println("Nota inválida! Deve ser entre 0 e 5.");
-            return false;
-        }
-
-        if (!feedback.comentarioValido()) {
-            System.out.println("Comentário inválido! Máx. 100 caracteres.");
-            return false;
-        }
-
-        if (feedback.getConsulta() == null || feedback.getConsulta().getCodigo() <= 0) {
-            System.out.println("Consulta inválida!");
-            return false;
-        }
-
-        if (consultaDao.buscarPorCodigo(feedback.getConsulta().getCodigo()) == null) {
-            System.out.println("Consulta não encontrada!");
-            return false;
-        }
-
-        if (!feedbackDao.listarPorConsulta(feedback.getConsulta().getCodigo()).isEmpty()) {
-            System.out.println("Você já deu um feedback para esta consulta!");
-            return false;
-        }
-
-        return true;
+    public void cadastrarFeedback(FeedbackConsulta feedback) throws Exception {
+        validarFeedback(feedback);
+        feedbackDao.inserir(feedback);
     }
 
-    public boolean cadastrarFeedback(FeedbackConsulta feedback) throws SQLException {
-        if (!validarFeedback(feedback)) return false;
-        return feedbackDao.inserir(feedback);
+    public void atualizarFeedback(FeedbackConsulta feedback) throws Exception {
+        if (!feedback.notaValida() || !feedback.comentarioValido())
+            throw new Exception("Dados inválidos! Verifique nota e comentário.");
+        feedbackDao.atualizar(feedback);
     }
 
-    public boolean atualizarFeedback(FeedbackConsulta feedback) throws SQLException {
-        if (!feedback.notaValida() || !feedback.comentarioValido()) {
-            System.out.println("\nDados inválidos! Verifique nota e comentário.");
-            return false;
-        }
-        return feedbackDao.atualizar(feedback);
-    }
-
-    public FeedbackConsulta buscarPorCodigo(int codigo) throws SQLException {
+    public FeedbackConsulta buscarPorCodigo(int codigo) throws Exception {
         return feedbackDao.buscarPorCodigo(codigo);
     }
 
@@ -71,12 +66,7 @@ public class FeedbackConsultaService implements AutoCloseable {
         return feedbackDao.listarPorConsulta(consultaId);
     }
 
-    public boolean deletarFeedback(int codigo) throws SQLException {
-        return feedbackDao.deletar(codigo);
-    }
-
-    public void close() throws SQLException {
-        feedbackDao.close();
-        consultaDao.close();
+    public void deletarFeedback(int codigo) throws Exception {
+        feedbackDao.deletar(codigo);
     }
 }

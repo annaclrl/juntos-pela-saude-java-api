@@ -1,8 +1,8 @@
 package br.com.fiap.resource;
 
-import br.com.fiap.dao.FeedbackConsultaDao;
-import br.com.fiap.exeption.EntidadeNaoEncontradaException;
 import br.com.fiap.model.FeedbackConsulta;
+import br.com.fiap.service.FeedbackConsultaService;
+import br.com.fiap.exeption.EntidadeNaoEncontradaException;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -17,12 +17,12 @@ import java.util.List;
 public class FeedbackConsultaResource {
 
     @Inject
-    private FeedbackConsultaDao dao;
+    private FeedbackConsultaService feedbackService;
 
     @GET
     public Response listarTodos() {
         try {
-            List<FeedbackConsulta> lista = dao.listarTodos();
+            List<FeedbackConsulta> lista = feedbackService.listarTodos();
             return Response.ok(lista).build();
         } catch (SQLException e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -35,13 +35,13 @@ public class FeedbackConsultaResource {
     @Path("/{id}")
     public Response buscarPorCodigo(@PathParam("id") int id) {
         try {
-            FeedbackConsulta feedback = dao.buscarPorCodigo(id);
+            FeedbackConsulta feedback = feedbackService.buscarPorCodigo(id);
             return Response.ok(feedback).build();
         } catch (EntidadeNaoEncontradaException e) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(e.getMessage())
                     .build();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Erro ao buscar feedback: " + e.getMessage())
                     .build();
@@ -52,7 +52,7 @@ public class FeedbackConsultaResource {
     @Path("/consulta/{idConsulta}")
     public Response listarPorConsulta(@PathParam("idConsulta") int idConsulta) {
         try {
-            List<FeedbackConsulta> lista = dao.listarPorConsulta(idConsulta);
+            List<FeedbackConsulta> lista = feedbackService.listarPorConsulta(idConsulta);
             return Response.ok(lista).build();
         } catch (SQLException e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -64,10 +64,10 @@ public class FeedbackConsultaResource {
     @POST
     public Response inserir(FeedbackConsulta feedback) {
         try {
-            dao.inserir(feedback);
+            feedbackService.cadastrarFeedback(feedback);
             return Response.status(Response.Status.CREATED).entity(feedback).build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST)
                     .entity("Erro ao inserir feedback: " + e.getMessage())
                     .build();
         }
@@ -78,14 +78,14 @@ public class FeedbackConsultaResource {
     public Response atualizar(@PathParam("id") int id, FeedbackConsulta feedback) {
         try {
             feedback.setCodigo(id);
-            dao.atualizar(feedback);
+            feedbackService.atualizarFeedback(feedback);
             return Response.ok(feedback).build();
         } catch (EntidadeNaoEncontradaException e) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(e.getMessage())
                     .build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST)
                     .entity("Erro ao atualizar feedback: " + e.getMessage())
                     .build();
         }
@@ -95,13 +95,13 @@ public class FeedbackConsultaResource {
     @Path("/{id}")
     public Response deletar(@PathParam("id") int id) {
         try {
-            dao.deletar(id);
+            feedbackService.deletarFeedback(id);
             return Response.status(Response.Status.NO_CONTENT).build();
         } catch (EntidadeNaoEncontradaException e) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(e.getMessage())
                     .build();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Erro ao deletar feedback: " + e.getMessage())
                     .build();
