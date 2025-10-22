@@ -1,10 +1,7 @@
 package br.com.fiap.service;
 
 import br.com.fiap.dao.MedicoDao;
-import br.com.fiap.exeption.CpfJaCadastradoException;
-import br.com.fiap.exeption.EmailJaCadastradoException;
 import br.com.fiap.exeption.EntidadeNaoEncontradaException;
-import br.com.fiap.exeption.TelefoneJaCadastradoException;
 import br.com.fiap.model.Medico;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
