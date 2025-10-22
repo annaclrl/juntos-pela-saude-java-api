@@ -16,24 +16,7 @@ public class PacienteService {
     @Inject
     private PacienteDao pacienteDao;
 
-    @Inject
-    private ValidationService validationService;
-
-    private void validarPaciente(Paciente paciente) throws Exception {
-        if (!validationService.validarNome(paciente.getNome()))
-            throw new Exception("Nome inválido");
-        if (!validationService.validarCPF(paciente.getCpf()))
-            throw new Exception("CPF inválido");
-        if (!validationService.validarIdade(paciente.getIdade()))
-            throw new Exception("Idade inválida");
-        if (!validationService.validarEmail(paciente.getEmail()))
-            throw new Exception("Email inválido");
-        if (!validationService.validarTelefoneSecundario(paciente.getTelefone1(), paciente.getTelefone2()))
-            throw new Exception("Telefone secundário igual ao principal");
-    }
-
     public void cadastrarPaciente(Paciente paciente) throws Exception {
-        validarPaciente(paciente);
 
         try {
             if (pacienteDao.buscarPorCpf(paciente.getCpf()) != null)
@@ -73,7 +56,6 @@ public class PacienteService {
     }
 
     public void atualizarPaciente(Paciente paciente) throws Exception {
-        validarPaciente(paciente);
         pacienteDao.atualizar(paciente);
     }
 
