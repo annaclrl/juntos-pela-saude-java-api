@@ -1,7 +1,7 @@
 package br.com.fiap.service;
 
 import br.com.fiap.dao.MedicoDao;
-import br.com.fiap.exeption.EntidadeNaoEncontradaException;
+import br.com.fiap.exeption.*;
 import br.com.fiap.model.Medico;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -15,7 +15,11 @@ public class MedicoService {
     @Inject
     private MedicoDao medicoDao;
 
-    public void cadastrarMedico(Medico medico) throws Exception {
+    public void cadastrarMedico(Medico medico)  throws CpfJaCadastradoException,
+            EmailJaCadastradoException,
+            TelefoneJaCadastradoException,
+            CrmJaCadastradoException,
+            SQLException {
         try {
             if (medicoDao.buscarPorCpf(medico.getCpf()) != null)
                 throw new CpfJaCadastradoException();
@@ -36,7 +40,7 @@ public class MedicoService {
 
         try {
             if (medicoDao.buscarPorCrm(medico.getCrm()) != null)
-                throw new Exception("CRM já cadastrado");
+                throw new CrmJaCadastradoException();
         } catch (EntidadeNaoEncontradaException ignored) {
         }
 
@@ -47,27 +51,15 @@ public class MedicoService {
         return medicoDao.listarTodos();
     }
 
-    public Medico buscarPorCrm(String crm) throws Exception {
-        return medicoDao.buscarPorCrm(crm);
-    }
-
-    public Medico buscarPorCodigo(int codigo) throws Exception {
+    public Medico buscarPorCodigo(int codigo) throws EntidadeNaoEncontradaException, SQLException {
         return medicoDao.buscarPorCodigo(codigo);
     }
 
-    public Medico buscarPorCpf(String cpf) throws Exception {
-        return medicoDao.buscarPorCpf(cpf);
-    }
-
-    public Medico buscarPorEmail(String email) throws Exception {
-        return medicoDao.buscarPorEmail(email);
-    }
-
-    public boolean atualizarMedico(Medico medico) throws Exception {
+    public boolean atualizarMedico(Medico medico) throws EntidadeNaoEncontradaException, SQLException {
         return medicoDao.atualizar(medico);
     }
 
-    public void deletarMedico(int codigo) throws Exception {
+    public void deletarMedico(int codigo) throws EntidadeNaoEncontradaException, SQLException {
         medicoDao.deletar(codigo);
     }
 }

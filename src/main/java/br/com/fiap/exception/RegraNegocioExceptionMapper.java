@@ -1,4 +1,4 @@
-package br.com.fiap.exeption;
+package br.com.fiap.exception;
 
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
