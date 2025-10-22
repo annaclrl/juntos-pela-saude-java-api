@@ -1,10 +1,10 @@
 package br.com.fiap.service;
 
 import br.com.fiap.dao.PacienteDao;
-import br.com.fiap.exeption.CpfJaCadastradoException;
-import br.com.fiap.exeption.EmailJaCadastradoException;
-import br.com.fiap.exeption.EntidadeNaoEncontradaException;
-import br.com.fiap.exeption.TelefoneJaCadastradoException;
+import br.com.fiap.exception.CpfJaCadastradoException;
+import br.com.fiap.exception.EmailJaCadastradoException;
+import br.com.fiap.exception.EntidadeNaoEncontradaException;
+import br.com.fiap.exception.TelefoneJaCadastradoException;
 import br.com.fiap.model.Paciente;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -25,23 +25,14 @@ public class PacienteService {
             TelefoneJaCadastradoException,
             SQLException {
 
-        try {
-            if (pacienteDao.buscarPorCpf(paciente.getCpf()) != null)
-                throw new CpfJaCadastradoException();
-        } catch (EntidadeNaoEncontradaException ignored) {
-        }
+        if (pacienteDao.buscarPorCpf(paciente.getCpf()) != null)
+            throw new CpfJaCadastradoException();
 
-        try {
-            if (pacienteDao.buscarPorEmail(paciente.getEmail()) != null)
-                throw new EmailJaCadastradoException();
-        } catch (EntidadeNaoEncontradaException ignored) {
-        }
+        if (pacienteDao.buscarPorEmail(paciente.getEmail()) != null)
+            throw new EmailJaCadastradoException();
 
-        try {
-            if (pacienteDao.buscarPorTelefone(paciente.getTelefone1(), paciente.getTelefone2()) != null)
-                throw new TelefoneJaCadastradoException();
-        } catch (EntidadeNaoEncontradaException ignored) {
-        }
+        if (pacienteDao.buscarPorTelefone(paciente.getTelefone1(), paciente.getTelefone2()) != null)
+            throw new TelefoneJaCadastradoException();
 
         pacienteDao.inserir(paciente);
     }

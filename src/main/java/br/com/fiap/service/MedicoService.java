@@ -1,7 +1,7 @@
 package br.com.fiap.service;
 
 import br.com.fiap.dao.MedicoDao;
-import br.com.fiap.exeption.*;
+import br.com.fiap.exception.*;
 import br.com.fiap.model.Medico;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -20,29 +20,18 @@ public class MedicoService {
             TelefoneJaCadastradoException,
             CrmJaCadastradoException,
             SQLException {
-        try {
-            if (medicoDao.buscarPorCpf(medico.getCpf()) != null)
-                throw new CpfJaCadastradoException();
-        } catch (EntidadeNaoEncontradaException ignored) {
-        }
 
-        try {
-            if (medicoDao.buscarPorEmail(medico.getEmail()) != null)
-                throw new EmailJaCadastradoException();
-        } catch (EntidadeNaoEncontradaException ignored) {
-        }
+        if (medicoDao.buscarPorCpf(medico.getCpf()) != null)
+            throw new CpfJaCadastradoException();
 
-        try {
-            if (medicoDao.buscarPorTelefone(medico.getTelefone1(), medico.getTelefone2()) != null)
-                throw new TelefoneJaCadastradoException();
-        } catch (EntidadeNaoEncontradaException ignored) {
-        }
+        if (medicoDao.buscarPorEmail(medico.getEmail()) != null)
+            throw new EmailJaCadastradoException();
 
-        try {
-            if (medicoDao.buscarPorCrm(medico.getCrm()) != null)
-                throw new CrmJaCadastradoException();
-        } catch (EntidadeNaoEncontradaException ignored) {
-        }
+        if (medicoDao.buscarPorTelefone(medico.getTelefone1(), medico.getTelefone2()) != null)
+            throw new TelefoneJaCadastradoException();
+
+        if (medicoDao.buscarPorCrm(medico.getCrm()) != null)
+            throw new CrmJaCadastradoException();
 
         medicoDao.inserir(medico);
     }

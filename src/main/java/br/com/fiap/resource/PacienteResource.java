@@ -2,10 +2,10 @@ package br.com.fiap.resource;
 
 import br.com.fiap.dto.paciente.CadastroPacienteDto;
 import br.com.fiap.dto.paciente.ListarPacienteDto;
-import br.com.fiap.exeption.CpfJaCadastradoException;
-import br.com.fiap.exeption.EmailJaCadastradoException;
-import br.com.fiap.exeption.EntidadeNaoEncontradaException;
-import br.com.fiap.exeption.TelefoneJaCadastradoException;
+import br.com.fiap.exception.CpfJaCadastradoException;
+import br.com.fiap.exception.EmailJaCadastradoException;
+import br.com.fiap.exception.EntidadeNaoEncontradaException;
+import br.com.fiap.exception.TelefoneJaCadastradoException;
 import br.com.fiap.model.Paciente;
 import br.com.fiap.service.PacienteService;
 import jakarta.inject.Inject;
