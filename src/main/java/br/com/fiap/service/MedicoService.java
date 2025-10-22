@@ -1,7 +1,10 @@
 package br.com.fiap.service;
 
 import br.com.fiap.dao.MedicoDao;
+import br.com.fiap.exeption.CpfJaCadastradoException;
+import br.com.fiap.exeption.EmailJaCadastradoException;
 import br.com.fiap.exeption.EntidadeNaoEncontradaException;
+import br.com.fiap.exeption.TelefoneJaCadastradoException;
 import br.com.fiap.model.Medico;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -15,42 +18,22 @@ public class MedicoService {
     @Inject
     private MedicoDao medicoDao;
 
-    @Inject
-    private ValidationService validationService;
-
-    private void validarMedico(Medico medico) throws Exception {
-        if (!validationService.validarNome(medico.getNome()))
-            throw new Exception("Nome inválido");
-        if (!validationService.validarCPF(medico.getCpf()))
-            throw new Exception("CPF inválido");
-        if (!validationService.validarIdade(medico.getIdade()))
-            throw new Exception("Idade inválida");
-        if (!validationService.validarEmail(medico.getEmail()))
-            throw new Exception("Email inválido");
-        if (!validationService.validarTelefoneSecundario(medico.getTelefone1(), medico.getTelefone2()))
-            throw new Exception("Telefone secundário igual ao principal");
-        if (medico.getCrm() == null || !medico.getCrm().matches("\\d{6}"))
-            throw new Exception("CRM inválido! Deve conter exatamente 6 dígitos numéricos.");
-    }
-
     public void cadastrarMedico(Medico medico) throws Exception {
-        validarMedico(medico);
-
         try {
             if (medicoDao.buscarPorCpf(medico.getCpf()) != null)
-                throw new Exception("CPF já cadastrado");
+                throw new CpfJaCadastradoException();
         } catch (EntidadeNaoEncontradaException ignored) {
         }
 
         try {
             if (medicoDao.buscarPorEmail(medico.getEmail()) != null)
-                throw new Exception("Email já cadastrado");
+                throw new EmailJaCadastradoException();
         } catch (EntidadeNaoEncontradaException ignored) {
         }
 
         try {
             if (medicoDao.buscarPorTelefone(medico.getTelefone1(), medico.getTelefone2()) != null)
-                throw new Exception("Telefone já cadastrado");
+                throw new TelefoneJaCadastradoException();
         } catch (EntidadeNaoEncontradaException ignored) {
         }
 
@@ -84,7 +67,6 @@ public class MedicoService {
     }
 
     public boolean atualizarMedico(Medico medico) throws Exception {
-        validarMedico(medico);
         return medicoDao.atualizar(medico);
     }
 

@@ -1,7 +1,10 @@
 package br.com.fiap.service;
 
 import br.com.fiap.dao.PacienteDao;
+import br.com.fiap.exeption.CpfJaCadastradoException;
+import br.com.fiap.exeption.EmailJaCadastradoException;
 import br.com.fiap.exeption.EntidadeNaoEncontradaException;
+import br.com.fiap.exeption.TelefoneJaCadastradoException;
 import br.com.fiap.model.Paciente;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -16,50 +19,47 @@ public class PacienteService {
     @Inject
     private PacienteDao pacienteDao;
 
-    public void cadastrarPaciente(Paciente paciente) throws Exception {
+    public void cadastrarPaciente(Paciente paciente)
+            throws CpfJaCadastradoException,
+            EmailJaCadastradoException,
+            TelefoneJaCadastradoException,
+            SQLException {
 
         try {
             if (pacienteDao.buscarPorCpf(paciente.getCpf()) != null)
-                throw new Exception("CPF já cadastrado");
+                throw new CpfJaCadastradoException();
         } catch (EntidadeNaoEncontradaException ignored) {
         }
 
         try {
             if (pacienteDao.buscarPorEmail(paciente.getEmail()) != null)
-                throw new Exception("Email já cadastrado");
+                throw new EmailJaCadastradoException();
         } catch (EntidadeNaoEncontradaException ignored) {
         }
 
         try {
             if (pacienteDao.buscarPorTelefone(paciente.getTelefone1(), paciente.getTelefone2()) != null)
-                throw new Exception("Telefone já cadastrado");
+                throw new TelefoneJaCadastradoException();
         } catch (EntidadeNaoEncontradaException ignored) {
         }
 
         pacienteDao.inserir(paciente);
     }
 
+
     public List<Paciente> listarPacientes() throws SQLException {
         return pacienteDao.listarTodos();
     }
 
-    public Paciente buscarPorCpf(String cpf) throws Exception {
-        return pacienteDao.buscarPorCpf(cpf);
-    }
-
-    public Paciente buscarPorCodigo(int codigo) throws Exception {
+    public Paciente buscarPorCodigo(int codigo) throws EntidadeNaoEncontradaException, SQLException {
         return pacienteDao.buscarPorCodigo(codigo);
     }
 
-    public Paciente buscarPorEmail(String email) throws Exception {
-        return pacienteDao.buscarPorEmail(email);
-    }
-
-    public void atualizarPaciente(Paciente paciente) throws Exception {
+    public void atualizarPaciente(Paciente paciente) throws EntidadeNaoEncontradaException, SQLException {
         pacienteDao.atualizar(paciente);
     }
 
-    public void deletarPaciente(int codigo) throws Exception {
+    public void deletarPaciente(int codigo) throws EntidadeNaoEncontradaException, SQLException {
         pacienteDao.deletar(codigo);
     }
 }

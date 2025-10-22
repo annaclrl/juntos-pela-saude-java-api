@@ -5,7 +5,6 @@ import br.com.fiap.dao.FuncionarioDao;
 import br.com.fiap.dao.MedicoDao;
 import br.com.fiap.dao.PacienteDao;
 import br.com.fiap.model.Consulta;
-import br.com.fiap.model.FeedbackConsulta;
 import br.com.fiap.model.StatusConsulta;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
