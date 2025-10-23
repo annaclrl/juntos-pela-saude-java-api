@@ -24,14 +24,23 @@ public class FuncionarioService {
                     TelefoneJaCadastradoException,
                     SQLException{
 
-        if (funcionarioDao.buscarPorCpf(funcionario.getCpf()) != null)
-            throw new CpfJaCadastradoException();
+        try {
+            if (funcionarioDao.buscarPorCpf(funcionario.getCpf()) != null)
+                throw new CpfJaCadastradoException();
+        } catch (EntidadeNaoEncontradaException e) {
+        }
 
-        if (funcionarioDao.buscarPorEmail(funcionario.getEmail()) != null)
-            throw new EmailJaCadastradoException();
+        try {
+            if (funcionarioDao.buscarPorEmail(funcionario.getEmail()) != null)
+                throw new EmailJaCadastradoException();
+        } catch (EntidadeNaoEncontradaException e) {
+        }
 
-        if (funcionarioDao.buscarPorTelefone(funcionario.getTelefone1(), funcionario.getTelefone2()) != null)
-            throw new TelefoneJaCadastradoException();
+        try {
+            if (funcionarioDao.buscarPorTelefone(funcionario.getTelefone1(), funcionario.getTelefone2()) != null)
+                throw new TelefoneJaCadastradoException();
+        } catch (EntidadeNaoEncontradaException e) {
+        }
 
         funcionarioDao.inserir(funcionario);
     }

@@ -2,7 +2,7 @@ package br.com.fiap.service;
 
 import br.com.fiap.dao.ConsultaDao;
 import br.com.fiap.dao.FeedbackConsultaDao;
-import br.com.fiap.exeption.EntidadeNaoEncontradaException;
+import br.com.fiap.exception.EntidadeNaoEncontradaException;
 import br.com.fiap.model.FeedbackConsulta;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

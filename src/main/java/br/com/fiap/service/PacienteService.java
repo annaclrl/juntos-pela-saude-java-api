@@ -25,14 +25,23 @@ public class PacienteService {
             TelefoneJaCadastradoException,
             SQLException {
 
-        if (pacienteDao.buscarPorCpf(paciente.getCpf()) != null)
-            throw new CpfJaCadastradoException();
+        try {
+            if (pacienteDao.buscarPorCpf(paciente.getCpf()) != null)
+                throw new CpfJaCadastradoException();
+        } catch (EntidadeNaoEncontradaException e) {
+        }
 
-        if (pacienteDao.buscarPorEmail(paciente.getEmail()) != null)
-            throw new EmailJaCadastradoException();
+        try {
+            if (pacienteDao.buscarPorEmail(paciente.getEmail()) != null)
+                throw new EmailJaCadastradoException();
+        } catch (EntidadeNaoEncontradaException e) {
+        }
 
-        if (pacienteDao.buscarPorTelefone(paciente.getTelefone1(), paciente.getTelefone2()) != null)
-            throw new TelefoneJaCadastradoException();
+        try {
+            if (pacienteDao.buscarPorTelefone(paciente.getTelefone1(), paciente.getTelefone2()) != null)
+                throw new TelefoneJaCadastradoException();
+        } catch (EntidadeNaoEncontradaException e) {
+        }
 
         pacienteDao.inserir(paciente);
     }

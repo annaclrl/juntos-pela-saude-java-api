@@ -21,17 +21,29 @@ public class MedicoService {
             CrmJaCadastradoException,
             SQLException {
 
-        if (medicoDao.buscarPorCpf(medico.getCpf()) != null)
-            throw new CpfJaCadastradoException();
+        try {
+            if (medicoDao.buscarPorCpf(medico.getCpf()) != null)
+                throw new CpfJaCadastradoException();
+        } catch (EntidadeNaoEncontradaException e) {
+        }
 
-        if (medicoDao.buscarPorEmail(medico.getEmail()) != null)
-            throw new EmailJaCadastradoException();
+        try {
+            if (medicoDao.buscarPorEmail(medico.getEmail()) != null)
+                throw new EmailJaCadastradoException();
+        } catch (EntidadeNaoEncontradaException e) {
+        }
 
-        if (medicoDao.buscarPorTelefone(medico.getTelefone1(), medico.getTelefone2()) != null)
-            throw new TelefoneJaCadastradoException();
+        try {
+            if (medicoDao.buscarPorTelefone(medico.getTelefone1(), medico.getTelefone2()) != null)
+                throw new TelefoneJaCadastradoException();
+        } catch (EntidadeNaoEncontradaException e) {
+        }
 
-        if (medicoDao.buscarPorCrm(medico.getCrm()) != null)
-            throw new CrmJaCadastradoException();
+        try {
+            if (medicoDao.buscarPorCrm(medico.getCrm()) != null)
+                throw new CrmJaCadastradoException();
+        } catch (EntidadeNaoEncontradaException e) {
+        }
 
         medicoDao.inserir(medico);
     }

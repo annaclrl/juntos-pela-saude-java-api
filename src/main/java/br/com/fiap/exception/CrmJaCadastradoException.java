@@ -1,7 +1,7 @@
 package br.com.fiap.exception;
 
-public class CrmJaCadastradoException extends RuntimeException {
+public class CrmJaCadastradoException extends RegraNegocioExeption {
     public CrmJaCadastradoException() {
-        super("CRM já cadstrado!");
+        super("CRM já cadastrado!");
     }
 }

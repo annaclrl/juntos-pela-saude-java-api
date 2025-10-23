@@ -2,7 +2,7 @@ package br.com.fiap.resource;
 
 import br.com.fiap.model.Consulta;
 import br.com.fiap.service.ConsultaService;
-import br.com.fiap.exeption.EntidadeNaoEncontradaException;
+import br.com.fiap.exception.EntidadeNaoEncontradaException;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;

@@ -26,7 +26,7 @@ public class AtualizarMedicoDto {
     @NotBlank(message = "O telefone principal é obrigatório.")
     @Pattern(
             regexp = "\\(?\\d{2}\\)?\\s?\\d{4,5}-?\\d{4}",
-            message = "O telefone principal deve estar em um formato válido. Ex: (11) 91234-5678"
+            message = "O telefone principal deve estar em um formato válido. Ex: 11912345678"
     )
     private String telefone1;
 

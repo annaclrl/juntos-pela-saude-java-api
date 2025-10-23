@@ -19,20 +19,20 @@ public class AtualizarPacienteDto {
     )
     private String cpf;
 
-    @Min(value = 0, message = "A idade não pode ser negativa.")
+    @Min(value = 1, message = "A idade mínima permitida é 1 ano.")
     @Max(value = 120, message = "A idade máxima permitida é 120 anos.")
     private int idade;
 
     @NotBlank(message = "O telefone principal é obrigatório.")
     @Pattern(
             regexp = "\\(?\\d{2}\\)?\\s?\\d{4,5}-?\\d{4}",
-            message = "O telefone principal deve estar em um formato válido. Ex: (11) 91234-5678"
+            message = "O telefone principal deve estar em um formato válido. Ex: 11912345678"
     )
     private String telefone1;
 
     @Pattern(
             regexp = "(\\(?\\d{2}\\)?\\s?\\d{4,5}-?\\d{4})?",
-            message = "O telefone secundário deve estar em um formato válido. Ex: (11) 91234-5678"
+            message = "O telefone secundário deve estar em um formato válido. Ex: 11912345678"
     )
     private String telefone2;
 

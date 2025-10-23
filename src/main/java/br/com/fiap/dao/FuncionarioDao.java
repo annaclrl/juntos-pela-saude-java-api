@@ -1,6 +1,6 @@
 package br.com.fiap.dao;
 
-import br.com.fiap.exeption.EntidadeNaoEncontradaException;
+import br.com.fiap.exception.EntidadeNaoEncontradaException;
 import br.com.fiap.model.Funcionario;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
