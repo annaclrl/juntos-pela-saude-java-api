@@ -19,7 +19,8 @@ public class FeedbackConsultaService {
     @Inject
     private ConsultaDao consultaDao;
 
-    private void validarFeedback(FeedbackConsulta feedback) throws Exception {
+    public void cadastrarFeedback(FeedbackConsulta feedback) throws Exception {
+
         if (!feedback.notaValida())
             throw new Exception("Nota inválida! Deve ser entre 0 e 5.");
 
@@ -32,7 +33,7 @@ public class FeedbackConsultaService {
         try {
             if (consultaDao.buscarPorCodigo(feedback.getConsulta().getCodigo()) == null)
                 throw new Exception("Consulta não encontrada!");
-        } catch (EntidadeNaoEncontradaException ignored) {
+        } catch (EntidadeNaoEncontradaException e) {
             throw new Exception("Consulta não encontrada!");
         }
 
@@ -41,25 +42,28 @@ public class FeedbackConsultaService {
                 throw new Exception("Você já deu um feedback para esta consulta!");
         } catch (SQLException ignored) {
         }
-    }
 
-    public void cadastrarFeedback(FeedbackConsulta feedback) throws Exception {
-        validarFeedback(feedback);
         feedbackDao.inserir(feedback);
     }
 
     public void atualizarFeedback(FeedbackConsulta feedback) throws Exception {
+
         if (!feedback.notaValida() || !feedback.comentarioValido())
             throw new Exception("Dados inválidos! Verifique nota e comentário.");
-        feedbackDao.atualizar(feedback);
-    }
 
-    public FeedbackConsulta buscarPorCodigo(int codigo) throws Exception {
-        return feedbackDao.buscarPorCodigo(codigo);
+        feedbackDao.atualizar(feedback);
     }
 
     public List<FeedbackConsulta> listarTodos() throws SQLException {
         return feedbackDao.listarTodos();
+    }
+
+    public FeedbackConsulta buscarPorCodigo(int codigo) throws Exception {
+        try {
+            return feedbackDao.buscarPorCodigo(codigo);
+        } catch (EntidadeNaoEncontradaException e) {
+            throw new Exception("Feedback não encontrado!");
+        }
     }
 
     public List<FeedbackConsulta> listarPorConsulta(int consultaId) throws SQLException {
@@ -67,6 +71,10 @@ public class FeedbackConsultaService {
     }
 
     public void deletarFeedback(int codigo) throws Exception {
-        feedbackDao.deletar(codigo);
+        try {
+            feedbackDao.deletar(codigo);
+        } catch (EntidadeNaoEncontradaException e) {
+            throw new Exception("Feedback não encontrado!");
+        }
     }
 }
