@@ -75,42 +75,6 @@ public class ConsultaDao {
         }
     }
 
-    public List<Consulta> listarPorMedico(int medicoCodigo) throws SQLException {
-        String sql = "SELECT * FROM T_JPS_CONSULTA WHERE ID_MEDICO = ?";
-        List<Consulta> consultas = new ArrayList<>();
-
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, medicoCodigo);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                consultas.add(parseConsulta(rs));
-            }
-        }
-
-        return consultas;
-    }
-
-    public List<Consulta> listarPorPaciente(int pacienteCodigo) throws SQLException {
-        String sql = "SELECT * FROM T_JPS_CONSULTA WHERE ID_PACIENTE = ?";
-        List<Consulta> consultas = new ArrayList<>();
-
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, pacienteCodigo);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                consultas.add(parseConsulta(rs));
-            }
-        }
-
-        return consultas;
-    }
-
     public void atualizar(Consulta consulta) throws SQLException, EntidadeNaoEncontradaException {
         String sql = "UPDATE T_JPS_CONSULTA SET " +
                 "ID_PACIENTE = ?, ID_MEDICO = ?, ID_FUNCIONARIO = ?, DT_HR_CONSULTA = ?, ST_CONSULTA = ? " +

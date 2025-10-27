@@ -4,6 +4,7 @@ import br.com.fiap.model.Funcionario;
 import br.com.fiap.model.Medico;
 import br.com.fiap.model.Paciente;
 import br.com.fiap.model.StatusConsulta;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 
@@ -23,6 +24,7 @@ public class AtualizarConsultaDto {
     @NotNull(message = "O status da consulta é obrigatório.")
     private StatusConsulta status;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm")
     @NotNull(message = "A data e hora da consulta são obrigatórias.")
     @Future(message = "A data e hora da consulta devem estar no futuro.")
     private LocalDateTime dataHora;

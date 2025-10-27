@@ -1,15 +1,23 @@
 package br.com.fiap.resource;
 
+import br.com.fiap.dto.consulta.CadastroConsultaDto;
+import br.com.fiap.dto.consulta.ListarConsultaDto;
 import br.com.fiap.model.Consulta;
 import br.com.fiap.service.ConsultaService;
 import br.com.fiap.exception.EntidadeNaoEncontradaException;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
+import org.modelmapper.ModelMapper;
 
+import java.net.URI;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/consultas")
 @Produces(MediaType.APPLICATION_JSON)
@@ -19,105 +27,53 @@ public class ConsultaResource {
     @Inject
     private ConsultaService consultaService;
 
+    @Inject
+    private ModelMapper mapper;
+
     @POST
-    public Response inserir(Consulta consulta) {
-        try {
-            consultaService.cadastrarConsulta(consulta);
-            return Response.status(Response.Status.CREATED).entity(consulta).build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Erro ao inserir consulta: " + e.getMessage())
-                    .build();
-        }
+    public Response inserir(@Valid CadastroConsultaDto dto, @Context UriInfo uriInfo) throws Exception {
+        Consulta consulta = mapper.map(dto, Consulta.class);
+        consultaService.cadastrarConsulta(consulta);
+        ListarConsultaDto responseDto = mapper.map(consulta, ListarConsultaDto.class);
+
+        URI uri = uriInfo.getAbsolutePathBuilder()
+                .path(String.valueOf(consulta.getCodigo()))
+                .build();
+        return Response.created(uri).entity(responseDto).build();
     }
 
     @GET
-    public Response listarTodos() {
-        try {
-            List<Consulta> consultas = consultaService.listarConsultas();
-            return Response.ok(consultas).build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erro ao listar consultas: " + e.getMessage())
-                    .build();
-        }
+    public Response listarTodos() throws SQLException {
+        List<Consulta> consultas = consultaService.listarConsultas();
+        List<ListarConsultaDto> dtoList = consultas.stream()
+                .map(c -> mapper.map(c, ListarConsultaDto.class))
+                .collect(Collectors.toList());
+        return Response.ok(dtoList).build();
     }
 
     @GET
-    @Path("/{codigo}")
-    public Response buscarPorCodigo(@PathParam("codigo") int codigo) {
-        try {
-            Consulta consulta = consultaService.buscarPorCodigo(codigo);
-            return Response.ok(consulta).build();
-        } catch (EntidadeNaoEncontradaException e) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity(e.getMessage())
-                    .build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erro ao buscar consulta: " + e.getMessage())
-                    .build();
-        }
-    }
-
-    @GET
-    @Path("/medico/{codigo}")
-    public Response listarPorMedico(@PathParam("codigo") int codigo) {
-        try {
-            List<Consulta> consultas = consultaService.listarPorMedico(codigo);
-            return Response.ok(consultas).build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erro ao listar consultas do médico: " + e.getMessage())
-                    .build();
-        }
-    }
-
-    @GET
-    @Path("/paciente/{codigo}")
-    public Response listarPorPaciente(@PathParam("codigo") int codigo) {
-        try {
-            List<Consulta> consultas = consultaService.listarPorPaciente(codigo);
-            return Response.ok(consultas).build();
-        } catch (SQLException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erro ao listar consultas do paciente: " + e.getMessage())
-                    .build();
-        }
+    @Path("/{id}")
+    public Response buscarPorCodigo(@PathParam("id") int id) throws EntidadeNaoEncontradaException, SQLException {
+        Consulta consulta = consultaService.buscarPorCodigo(id);
+        ListarConsultaDto dto = mapper.map(consulta, ListarConsultaDto.class);
+        return Response.ok(dto).build();
     }
 
     @PUT
-    @Path("/{codigo}")
-    public Response atualizar(@PathParam("codigo") int codigo, Consulta consulta) {
-        try {
-            consulta.setCodigo(codigo);
-            consultaService.atualizarConsulta(consulta);
-            return Response.ok(consulta).build();
-        } catch (EntidadeNaoEncontradaException e) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity(e.getMessage())
-                    .build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Erro ao atualizar consulta: " + e.getMessage())
-                    .build();
-        }
+    @Path("/{id}")
+    public Response atualizar(@PathParam("id") int id, @Valid CadastroConsultaDto dto) throws Exception {
+        Consulta consulta = mapper.map(dto, Consulta.class);
+        consulta.setCodigo(id);
+        consultaService.atualizarConsulta(consulta);
+
+        ListarConsultaDto responseDto = mapper.map(consulta, ListarConsultaDto.class);
+        return Response.ok(responseDto).build();
     }
 
     @DELETE
-    @Path("/{codigo}")
-    public Response deletar(@PathParam("codigo") int codigo) {
-        try {
-            consultaService.deletarConsulta(codigo);
-            return Response.status(Response.Status.NO_CONTENT).build();
-        } catch (EntidadeNaoEncontradaException e) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity(e.getMessage())
-                    .build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Erro ao deletar consulta: " + e.getMessage())
-                    .build();
-        }
+    @Path("/{id}")
+    public Response deletar(@PathParam("id") int id) throws EntidadeNaoEncontradaException, SQLException {
+        consultaService.deletarConsulta(id);
+        return Response.noContent().build();
     }
 }

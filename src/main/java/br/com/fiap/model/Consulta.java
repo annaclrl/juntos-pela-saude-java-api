@@ -74,7 +74,7 @@ public class Consulta {
 
 
     public String getDataHoraFormatada() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return dataHora.format(formatter);
     }
     @Override
