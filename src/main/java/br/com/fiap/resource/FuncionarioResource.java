@@ -2,7 +2,6 @@ package br.com.fiap.resource;
 
 import br.com.fiap.dto.funcionario.CadastroFuncionarioDto;
 import br.com.fiap.dto.funcionario.ListarFuncionarioDto;
-import br.com.fiap.dto.medico.CadastroMedicoDto;
 import br.com.fiap.exception.*;
 import br.com.fiap.model.Funcionario;
 import br.com.fiap.service.FuncionarioService;
@@ -64,7 +63,7 @@ public class FuncionarioResource {
 
     @PUT
     @Path("/{id}")
-    public Response atualizar(@PathParam("id") int id, @Valid CadastroMedicoDto dto) throws EntidadeNaoEncontradaException, SQLException {
+    public Response atualizar(@PathParam("id") int id, @Valid CadastroFuncionarioDto dto) throws EntidadeNaoEncontradaException, SQLException {
         Funcionario funcionario = mapper.map(dto, Funcionario.class);
         funcionario.setCodigo(id);
         funcionarioService.atualizarFuncionario(funcionario);

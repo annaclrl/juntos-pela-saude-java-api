@@ -24,7 +24,7 @@ public class AtualizarConsultaDto {
     @NotNull(message = "O status da consulta é obrigatório.")
     private StatusConsulta status;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @NotNull(message = "A data e hora da consulta são obrigatórias.")
     @Future(message = "A data e hora da consulta devem estar no futuro.")
     private LocalDateTime dataHora;

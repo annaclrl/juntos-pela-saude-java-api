@@ -19,7 +19,7 @@ public class AtualizarFuncionarioDto {
     )
     private String cpf;
 
-    @Min(value = 0, message = "A idade não pode ser negativa.")
+    @Min(value = 18, message = "O funcionário deve ter pelo menos 18 anos.")
     @Max(value = 120, message = "A idade máxima permitida é 120 anos.")
     private int idade;
 
