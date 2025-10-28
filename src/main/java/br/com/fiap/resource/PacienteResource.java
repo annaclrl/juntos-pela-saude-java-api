@@ -2,10 +2,8 @@ package br.com.fiap.resource;
 
 import br.com.fiap.dto.paciente.CadastroPacienteDto;
 import br.com.fiap.dto.paciente.ListarPacienteDto;
-import br.com.fiap.exception.CpfJaCadastradoException;
-import br.com.fiap.exception.EmailJaCadastradoException;
+import br.com.fiap.exception.CampoJaCadastrado;
 import br.com.fiap.exception.EntidadeNaoEncontradaException;
-import br.com.fiap.exception.TelefoneJaCadastradoException;
 import br.com.fiap.model.Paciente;
 import br.com.fiap.service.PacienteService;
 import jakarta.inject.Inject;
@@ -50,8 +48,7 @@ public class PacienteResource {
 
     @POST
     public Response inserir(@Valid CadastroPacienteDto dto, @Context UriInfo uriInfo)
-            throws CpfJaCadastradoException, EmailJaCadastradoException,
-    TelefoneJaCadastradoException, SQLException {
+            throws CampoJaCadastrado, SQLException {
 
         Paciente paciente = mapper.map(dto, Paciente.class);
         pacienteService.cadastrarPaciente(paciente);

@@ -15,33 +15,29 @@ public class MedicoService {
     @Inject
     private MedicoDao medicoDao;
 
-    public void cadastrarMedico(Medico medico)  throws CpfJaCadastradoException,
-            EmailJaCadastradoException,
-            TelefoneJaCadastradoException,
-            CrmJaCadastradoException,
-            SQLException {
+    public void cadastrarMedico(Medico medico)  throws CampoJaCadastrado, SQLException {
 
         try {
             if (medicoDao.buscarPorCpf(medico.getCpf()) != null)
-                throw new CpfJaCadastradoException();
+                throw new CampoJaCadastrado("CPF");
         } catch (EntidadeNaoEncontradaException e) {
         }
 
         try {
             if (medicoDao.buscarPorEmail(medico.getEmail()) != null)
-                throw new EmailJaCadastradoException();
+                throw new CampoJaCadastrado("E-mail");
         } catch (EntidadeNaoEncontradaException e) {
         }
 
         try {
             if (medicoDao.buscarPorTelefone(medico.getTelefone1(), medico.getTelefone2()) != null)
-                throw new TelefoneJaCadastradoException();
+                throw new CampoJaCadastrado("Telefone");
         } catch (EntidadeNaoEncontradaException e) {
         }
 
         try {
             if (medicoDao.buscarPorCrm(medico.getCrm()) != null)
-                throw new CrmJaCadastradoException();
+                throw new CampoJaCadastrado("CRM");
         } catch (EntidadeNaoEncontradaException e) {
         }
 

@@ -48,8 +48,7 @@ public class MedicoResource {
 
     @POST
     public Response inserir(@Valid CadastroMedicoDto dto, @Context UriInfo uriInfo)
-            throws CpfJaCadastradoException, EmailJaCadastradoException,
-            TelefoneJaCadastradoException, CrmJaCadastradoException, SQLException {
+            throws CampoJaCadastrado, SQLException {
         Medico medico = mapper.map(dto, Medico.class);
         medicoService.cadastrarMedico(medico);
         ListarMedicoDto responseDto = mapper.map(dto, ListarMedicoDto.class);

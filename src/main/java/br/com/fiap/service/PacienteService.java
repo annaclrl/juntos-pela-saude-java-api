@@ -1,10 +1,8 @@
 package br.com.fiap.service;
 
 import br.com.fiap.dao.PacienteDao;
-import br.com.fiap.exception.CpfJaCadastradoException;
-import br.com.fiap.exception.EmailJaCadastradoException;
+import br.com.fiap.exception.CampoJaCadastrado;
 import br.com.fiap.exception.EntidadeNaoEncontradaException;
-import br.com.fiap.exception.TelefoneJaCadastradoException;
 import br.com.fiap.model.Paciente;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -19,27 +17,23 @@ public class PacienteService {
     @Inject
     private PacienteDao pacienteDao;
 
-    public void cadastrarPaciente(Paciente paciente)
-            throws CpfJaCadastradoException,
-            EmailJaCadastradoException,
-            TelefoneJaCadastradoException,
-            SQLException {
+    public void cadastrarPaciente(Paciente paciente)  throws CampoJaCadastrado, SQLException {
 
         try {
             if (pacienteDao.buscarPorCpf(paciente.getCpf()) != null)
-                throw new CpfJaCadastradoException();
+                throw new CampoJaCadastrado("CPF");
         } catch (EntidadeNaoEncontradaException e) {
         }
 
         try {
             if (pacienteDao.buscarPorEmail(paciente.getEmail()) != null)
-                throw new EmailJaCadastradoException();
+                throw new CampoJaCadastrado("E-mail");
         } catch (EntidadeNaoEncontradaException e) {
         }
 
         try {
             if (pacienteDao.buscarPorTelefone(paciente.getTelefone1(), paciente.getTelefone2()) != null)
-                throw new TelefoneJaCadastradoException();
+                throw new CampoJaCadastrado("Telefone");
         } catch (EntidadeNaoEncontradaException e) {
         }
 

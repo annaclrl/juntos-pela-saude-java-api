@@ -49,8 +49,7 @@ public class FuncionarioResource {
 
     @POST
     public Response inserir(@Valid CadastroFuncionarioDto dto, @Context UriInfo uriInfo)
-            throws CpfJaCadastradoException, EmailJaCadastradoException,
-            TelefoneJaCadastradoException, SQLException {
+            throws CampoJaCadastrado, SQLException {
         Funcionario funcionario = mapper.map(dto, Funcionario.class);
         funcionarioService.cadastrarFuncionario(funcionario);
         ListarFuncionarioDto responseDto = mapper.map(dto, ListarFuncionarioDto.class);
