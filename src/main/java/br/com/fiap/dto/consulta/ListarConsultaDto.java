@@ -4,16 +4,25 @@ import br.com.fiap.model.Funcionario;
 import br.com.fiap.model.Medico;
 import br.com.fiap.model.Paciente;
 import br.com.fiap.model.StatusConsulta;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
 
 public class ListarConsultaDto {
 
     private int codigo;
-    private Paciente paciente;
-    private Medico medico;
-    private Funcionario funcionario;
+
+    @JsonProperty("paciente_id")
+    private int pacienteId;
+
+    @JsonProperty("medico_id")
+    private int medicoId;
+
+    @JsonProperty("funcionario_id")
+    private int funcionarioId;
+
     private StatusConsulta status;
+
     private LocalDateTime dataHora;
 
     public int getCodigo() {
@@ -24,28 +33,28 @@ public class ListarConsultaDto {
         this.codigo = codigo;
     }
 
-    public Paciente getPaciente() {
-        return paciente;
+    public int getPacienteId() {
+        return pacienteId;
     }
 
-    public void setPaciente(Paciente paciente) {
-        this.paciente = paciente;
+    public void setPacienteId(int pacienteId) {
+        this.pacienteId = pacienteId;
     }
 
-    public Medico getMedico() {
-        return medico;
+    public int getMedicoId() {
+        return medicoId;
     }
 
-    public void setMedico(Medico medico) {
-        this.medico = medico;
+    public void setMedicoId(int medicoId) {
+        this.medicoId = medicoId;
     }
 
-    public Funcionario getFuncionario() {
-        return funcionario;
+    public int getFuncionarioId() {
+        return funcionarioId;
     }
 
-    public void setFuncionario(Funcionario funcionario) {
-        this.funcionario = funcionario;
+    public void setFuncionarioId(int funcionarioId) {
+        this.funcionarioId = funcionarioId;
     }
 
     public StatusConsulta getStatus() {

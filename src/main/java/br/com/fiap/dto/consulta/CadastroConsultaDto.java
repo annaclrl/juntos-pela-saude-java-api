@@ -1,10 +1,8 @@
 package br.com.fiap.dto.consulta;
 
-import br.com.fiap.model.Funcionario;
-import br.com.fiap.model.Medico;
-import br.com.fiap.model.Paciente;
 import br.com.fiap.model.StatusConsulta;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 
@@ -13,13 +11,16 @@ import java.time.LocalDateTime;
 public class CadastroConsultaDto {
 
     @NotNull(message = "O paciente é obrigatório.")
-    private Paciente paciente;
+    @JsonProperty("paciente_id")
+    private int pacienteId;
 
     @NotNull(message = "O médico é obrigatório.")
-    private Medico medico;
+    @JsonProperty("medico_id")
+    private int medicoId;
 
     @NotNull(message = "O funcionário responsável é obrigatório.")
-    private Funcionario funcionario;
+    @JsonProperty("funcionario_id")
+    private int funcionarioId;
 
     @NotNull(message = "O status da consulta é obrigatório.")
     private StatusConsulta status;
@@ -29,28 +30,29 @@ public class CadastroConsultaDto {
     @Future(message = "A data e hora da consulta devem estar no futuro.")
     private LocalDateTime dataHora;
 
-    public Paciente getPaciente() {
-        return paciente;
+
+    public int getPacienteId() {
+        return pacienteId;
     }
 
-    public void setPaciente(Paciente paciente) {
-        this.paciente = paciente;
+    public void setPacienteId(int pacienteId) {
+        this.pacienteId = pacienteId;
     }
 
-    public Medico getMedico() {
-        return medico;
+    public int getMedicoId() {
+        return medicoId;
     }
 
-    public void setMedico(Medico medico) {
-        this.medico = medico;
+    public void setMedicoId(int medicoId) {
+        this.medicoId = medicoId;
     }
 
-    public Funcionario getFuncionario() {
-        return funcionario;
+    public int getFuncionarioId() {
+        return funcionarioId;
     }
 
-    public void setFuncionario(Funcionario funcionario) {
-        this.funcionario = funcionario;
+    public void setFuncionarioId(int funcionarioId) {
+        this.funcionarioId = funcionarioId;
     }
 
     public StatusConsulta getStatus() {

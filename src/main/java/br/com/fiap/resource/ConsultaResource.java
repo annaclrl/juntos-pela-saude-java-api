@@ -3,6 +3,9 @@ package br.com.fiap.resource;
 import br.com.fiap.dto.consulta.CadastroConsultaDto;
 import br.com.fiap.dto.consulta.ListarConsultaDto;
 import br.com.fiap.model.Consulta;
+import br.com.fiap.model.Funcionario;
+import br.com.fiap.model.Medico;
+import br.com.fiap.model.Paciente;
 import br.com.fiap.service.ConsultaService;
 import br.com.fiap.exception.EntidadeNaoEncontradaException;
 import jakarta.inject.Inject;
@@ -33,12 +36,31 @@ public class ConsultaResource {
     @POST
     public Response inserir(@Valid CadastroConsultaDto dto, @Context UriInfo uriInfo) throws Exception {
         Consulta consulta = mapper.map(dto, Consulta.class);
+
+        consulta.setPaciente(new Paciente());
+        consulta.getPaciente().setCodigo(dto.getPacienteId());
+
+        consulta.setMedico(new Medico());
+        consulta.getMedico().setCodigo(dto.getMedicoId());
+
+        consulta.setFuncionario(new Funcionario());
+        consulta.getFuncionario().setCodigo(dto.getFuncionarioId());
+
         consultaService.cadastrarConsulta(consulta);
-        ListarConsultaDto responseDto = mapper.map(consulta, ListarConsultaDto.class);
+
+
+        ListarConsultaDto responseDto = new ListarConsultaDto();
+        responseDto.setCodigo(consulta.getCodigo());
+        responseDto.setPacienteId(dto.getPacienteId());
+        responseDto.setMedicoId(dto.getMedicoId());
+        responseDto.setFuncionarioId(dto.getFuncionarioId());
+        responseDto.setStatus(dto.getStatus());
+        responseDto.setDataHora(dto.getDataHora());
 
         URI uri = uriInfo.getAbsolutePathBuilder()
                 .path(String.valueOf(consulta.getCodigo()))
                 .build();
+
         return Response.created(uri).entity(responseDto).build();
     }
 
