@@ -84,8 +84,21 @@ public class ConsultaResource {
     @PUT
     @Path("/{id}")
     public Response atualizar(@PathParam("id") int id, @Valid CadastroConsultaDto dto) throws Exception {
+
         Consulta consulta = mapper.map(dto, Consulta.class);
+
         consulta.setCodigo(id);
+
+        consulta.setPaciente(new Paciente());
+        consulta.getPaciente().setCodigo(dto.getPacienteId());
+
+        consulta.setMedico(new Medico());
+        consulta.getMedico().setCodigo(dto.getMedicoId());
+
+        consulta.setFuncionario(new Funcionario());
+        consulta.getFuncionario().setCodigo(dto.getFuncionarioId());
+
+
         consultaService.atualizarConsulta(consulta);
 
         ListarConsultaDto responseDto = mapper.map(consulta, ListarConsultaDto.class);

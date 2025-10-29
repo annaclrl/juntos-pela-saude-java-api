@@ -12,15 +12,15 @@ public class CadastroConsultaDto {
 
     @NotNull(message = "O paciente é obrigatório.")
     @JsonProperty("paciente_id")
-    private int pacienteId;
+    private Integer pacienteId;
 
     @NotNull(message = "O médico é obrigatório.")
     @JsonProperty("medico_id")
-    private int medicoId;
+    private Integer medicoId;
 
     @NotNull(message = "O funcionário responsável é obrigatório.")
     @JsonProperty("funcionario_id")
-    private int funcionarioId;
+    private Integer funcionarioId;
 
     @NotNull(message = "O status da consulta é obrigatório.")
     private StatusConsulta status;
@@ -31,27 +31,27 @@ public class CadastroConsultaDto {
     private LocalDateTime dataHora;
 
 
-    public int getPacienteId() {
+    public Integer getPacienteId() {
         return pacienteId;
     }
 
-    public void setPacienteId(int pacienteId) {
+    public void setPacienteId(Integer pacienteId) {
         this.pacienteId = pacienteId;
     }
 
-    public int getMedicoId() {
+    public Integer getMedicoId() {
         return medicoId;
     }
 
-    public void setMedicoId(int medicoId) {
+    public void setMedicoId(Integer medicoId) {
         this.medicoId = medicoId;
     }
 
-    public int getFuncionarioId() {
+    public Integer getFuncionarioId() {
         return funcionarioId;
     }
 
-    public void setFuncionarioId(int funcionarioId) {
+    public void setFuncionarioId(Integer funcionarioId) {
         this.funcionarioId = funcionarioId;
     }
 
