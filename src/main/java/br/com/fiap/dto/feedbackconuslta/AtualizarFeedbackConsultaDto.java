@@ -1,6 +1,7 @@
 package br.com.fiap.dto.feedbackconuslta;
 
 import br.com.fiap.model.Consulta;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -9,8 +10,8 @@ import jakarta.validation.constraints.Size;
 public class AtualizarFeedbackConsultaDto {
 
     @NotNull(message = "A consulta é obrigatória.")
-    private Consulta consulta;
-
+    @JsonProperty("consulta_id")
+    private Integer consultaId;
     @Size(max = 500, message = "O comentário deve ter no máximo 500 caracteres.")
     private String comentario;
 
@@ -19,12 +20,12 @@ public class AtualizarFeedbackConsultaDto {
     private double nota;
 
 
-    public Consulta getConsulta() {
-        return consulta;
+    public Integer getConsultaId() {
+        return consultaId;
     }
 
-    public void setConsulta(Consulta consulta) {
-        this.consulta = consulta;
+    public void setConsultaId(Integer consultaId) {
+        this.consultaId = consultaId;
     }
 
     public String getComentario() {
