@@ -1,15 +1,22 @@
 package br.com.fiap.resource;
 
+import br.com.fiap.dto.feedbackconuslta.CadastroFeedbackConsultaDto;
+import br.com.fiap.dto.feedbackconuslta.AtualizarFeedbackConsultaDto;
+import br.com.fiap.dto.feedbackconuslta.ListarFeedbackConsultaDto;
+import br.com.fiap.exception.EntidadeNaoEncontradaException;
+import br.com.fiap.model.Consulta;
 import br.com.fiap.model.FeedbackConsulta;
 import br.com.fiap.service.FeedbackConsultaService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
+import org.modelmapper.ModelMapper;
 
 import java.net.URI;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/feedbacks")
 @Produces(MediaType.APPLICATION_JSON)
@@ -19,69 +26,64 @@ public class FeedbackConsultaResource {
     @Inject
     private FeedbackConsultaService feedbackService;
 
+    @Inject
+    private ModelMapper mapper;
+
     @POST
-    public Response inserir(@Valid FeedbackConsulta feedback, @Context UriInfo uriInfo) {
-        try {
-            feedbackService.cadastrarFeedback(feedback);
+    public Response inserir(@Valid CadastroFeedbackConsultaDto dto, @Context UriInfo uriInfo) throws Exception {
+        FeedbackConsulta feedback = mapper.map(dto, FeedbackConsulta.class);
 
-            URI uri = uriInfo.getAbsolutePathBuilder()
-                    .path(String.valueOf(feedback.getCodigo()))
-                    .build();
-            return Response.created(uri).entity(feedback).build();
+        Consulta consulta = new Consulta();
+        consulta.setCodigo(dto.getConsultaId());
+        feedback.setConsulta(consulta);
 
-        } catch (Exception e) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(e.getMessage())
-                    .build();
-        }
+        feedbackService.cadastrarFeedback(feedback);
+
+        URI uri = uriInfo.getAbsolutePathBuilder()
+                .path(String.valueOf(feedback.getCodigo()))
+                .build();
+
+        return Response.created(uri).entity(feedback).build();
     }
 
     @PUT
     @Path("/{id}")
-    public Response atualizar(@PathParam("id") int id, @Valid FeedbackConsulta feedback) {
-        try {
-            feedback.setCodigo(id);
-            feedbackService.atualizarFeedback(feedback);
-            return Response.ok(feedback).build();
+    public Response atualizar(@PathParam("id") int id, @Valid AtualizarFeedbackConsultaDto dto) throws Exception {
+            FeedbackConsulta feedback = mapper.map(dto, FeedbackConsulta.class);
 
-        } catch (Exception e) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(e.getMessage())
-                    .build();
-        }
+            feedback.setCodigo(id);
+
+            Consulta consulta = new Consulta();
+            consulta.setCodigo(dto.getConsultaId());
+            feedback.setConsulta(consulta);
+
+            feedbackService.atualizarFeedback(feedback);
+            ListarFeedbackConsultaDto respondeDto= mapper.map(feedback, ListarFeedbackConsultaDto.class);
+            return Response.ok(respondeDto).build();
     }
 
     @GET
     public Response listarTodos() throws SQLException {
-        List<FeedbackConsulta> lista = feedbackService.listarTodos();
-        return Response.ok(lista).build();
+        List<FeedbackConsulta> feedbacks = feedbackService.listarTodos();
+        List<ListarFeedbackConsultaDto> dtoList = feedbacks.stream()
+                .map(f -> mapper.map(f, ListarFeedbackConsultaDto.class))
+                .collect(Collectors.toList());
+        return Response.ok(dtoList).build();
     }
 
     @GET
     @Path("/{id}")
-    public Response buscarPorCodigo(@PathParam("id") int id) {
-        try {
-            FeedbackConsulta feedback = feedbackService.buscarPorCodigo(id);
-            return Response.ok(feedback).build();
+    public Response buscarPorCodigo(@PathParam("id") int id) throws EntidadeNaoEncontradaException, SQLException {
+        FeedbackConsulta feedback = feedbackService.buscarPorCodigo(id);
+        ListarFeedbackConsultaDto dto = mapper.map(feedback, ListarFeedbackConsultaDto.class);
+        return Response.ok(feedback).build();
 
-        } catch (Exception e) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity(e.getMessage())
-                    .build();
-        }
     }
 
     @DELETE
     @Path("/{id}")
-    public Response deletar(@PathParam("id") int id) {
-        try {
-            feedbackService.deletarFeedback(id);
-            return Response.noContent().build();
-
-        } catch (Exception e) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity(e.getMessage())
-                    .build();
-        }
+    public Response deletar(@PathParam("id") int id) throws EntidadeNaoEncontradaException, SQLException {
+        feedbackService.deletarFeedback(id);
+        return Response.noContent().build();
     }
 }

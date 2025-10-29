@@ -1,5 +1,7 @@
 package br.com.fiap.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum StatusConsulta {
     CONFIRMADA("Confirmada"),
     EM_ANDAMENTO("Em Andamento"),
@@ -27,6 +29,24 @@ public enum StatusConsulta {
             }
         }
         throw new IllegalArgumentException("Status inválido no banco: " + valorBanco);
+    }
+
+    @JsonCreator
+    public static StatusConsulta fromJson(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        String normalizado = value.trim().toUpperCase().replace(" ", "_");
+
+        for (StatusConsulta status : values()) {
+            if (status.name().equalsIgnoreCase(normalizado)
+                    || status.getValorBanco().equalsIgnoreCase(value)) {
+                return status;
+            }
+        }
+
+        throw new IllegalArgumentException("Status inválido: " + value);
     }
 }
 

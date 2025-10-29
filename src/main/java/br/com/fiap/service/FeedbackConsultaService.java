@@ -58,23 +58,12 @@ public class FeedbackConsultaService {
         return feedbackDao.listarTodos();
     }
 
-    public FeedbackConsulta buscarPorCodigo(int codigo) throws Exception {
-        try {
-            return feedbackDao.buscarPorCodigo(codigo);
-        } catch (EntidadeNaoEncontradaException e) {
-            throw new Exception("Feedback não encontrado!");
-        }
+    public FeedbackConsulta buscarPorCodigo(int codigo) throws EntidadeNaoEncontradaException, SQLException {
+        return feedbackDao.buscarPorCodigo(codigo);
     }
 
-    public List<FeedbackConsulta> listarPorConsulta(int consultaId) throws SQLException {
-        return feedbackDao.listarPorConsulta(consultaId);
-    }
+    public void deletarFeedback(int codigo) throws EntidadeNaoEncontradaException, SQLException {
+        feedbackDao.deletar(codigo);
 
-    public void deletarFeedback(int codigo) throws Exception {
-        try {
-            feedbackDao.deletar(codigo);
-        } catch (EntidadeNaoEncontradaException e) {
-            throw new Exception("Feedback não encontrado!");
-        }
     }
 }
