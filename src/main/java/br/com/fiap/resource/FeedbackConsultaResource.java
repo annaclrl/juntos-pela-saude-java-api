@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 
 @Path("/feedbacks")
 @Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
 public class FeedbackConsultaResource {
 
     @Inject
@@ -30,6 +29,7 @@ public class FeedbackConsultaResource {
     private ModelMapper mapper;
 
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response inserir(@Valid CadastroFeedbackConsultaDto dto, @Context UriInfo uriInfo) throws Exception {
         FeedbackConsulta feedback = mapper.map(dto, FeedbackConsulta.class);
 
@@ -54,6 +54,7 @@ public class FeedbackConsultaResource {
 
     @PUT
     @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response atualizar(@PathParam("id") int id, @Valid AtualizarFeedbackConsultaDto dto) throws Exception {
         FeedbackConsulta feedback = mapper.map(dto, FeedbackConsulta.class);
 

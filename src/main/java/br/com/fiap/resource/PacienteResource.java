@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 @Path("/pacientes")
 @Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
 public class PacienteResource {
 
     @Inject
@@ -47,6 +46,7 @@ public class PacienteResource {
     }
 
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response inserir(@Valid CadastroPacienteDto dto, @Context UriInfo uriInfo)
             throws CampoJaCadastrado, SQLException {
 
@@ -63,6 +63,7 @@ public class PacienteResource {
 
     @PUT
     @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response atualizar(@PathParam("id") int id, @Valid CadastroPacienteDto dto)
             throws EntidadeNaoEncontradaException, SQLException {
         Paciente paciente = mapper.map(dto, Paciente.class);
@@ -74,7 +75,6 @@ public class PacienteResource {
 
     @DELETE
     @Path("/{id}")
-    @Consumes(MediaType.WILDCARD)
     public Response deletar(@PathParam("id") int id)
             throws EntidadeNaoEncontradaException, SQLException {
         pacienteService.deletarPaciente(id);

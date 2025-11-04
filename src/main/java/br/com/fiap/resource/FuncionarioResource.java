@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 @Path("/funcionarios")
 @Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
 public class FuncionarioResource {
 
     @Inject
@@ -48,6 +47,7 @@ public class FuncionarioResource {
 
 
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response inserir(@Valid CadastroFuncionarioDto dto, @Context UriInfo uriInfo)
             throws CampoJaCadastrado, SQLException {
         Funcionario funcionario = mapper.map(dto, Funcionario.class);
@@ -62,6 +62,7 @@ public class FuncionarioResource {
 
     @PUT
     @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response atualizar(@PathParam("id") int id, @Valid CadastroFuncionarioDto dto) throws EntidadeNaoEncontradaException, SQLException {
         Funcionario funcionario = mapper.map(dto, Funcionario.class);
         funcionario.setCodigo(id);
@@ -72,7 +73,6 @@ public class FuncionarioResource {
 
     @DELETE
     @Path("/{id}")
-    @Consumes(MediaType.WILDCARD)
     public Response deletar(@PathParam("id") int id) throws EntidadeNaoEncontradaException, SQLException {
         funcionarioService.deletarFuncionario(id);
         return Response.noContent().build();

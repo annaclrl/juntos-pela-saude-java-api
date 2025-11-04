@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 
 @Path("/consultas")
 @Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
 public class ConsultaResource {
 
     @Inject
@@ -34,6 +33,7 @@ public class ConsultaResource {
     private ModelMapper mapper;
 
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response inserir(@Valid CadastroConsultaDto dto, @Context UriInfo uriInfo) throws Exception {
         Consulta consulta = mapper.map(dto, Consulta.class);
 
@@ -83,6 +83,7 @@ public class ConsultaResource {
 
     @PUT
     @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response atualizar(@PathParam("id") int id, @Valid CadastroConsultaDto dto) throws Exception {
 
         Consulta consulta = mapper.map(dto, Consulta.class);
