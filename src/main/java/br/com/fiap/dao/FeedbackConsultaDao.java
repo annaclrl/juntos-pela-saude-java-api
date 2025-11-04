@@ -118,6 +118,16 @@ public class FeedbackConsultaDao {
         }
     }
 
+    public void deletarPorConsulta(int idConsulta) throws SQLException {
+        String sql = "DELETE FROM T_JPS_FEEDBACK WHERE ID_CONSULTA = ?";
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, idConsulta);
+            ps.executeUpdate();
+        }
+    }
+
     private FeedbackConsulta parseFeedback(ResultSet rs) throws SQLException {
         Consulta consulta = new Consulta();
         consulta.setCodigo(rs.getInt("ID_CONSULTA"));

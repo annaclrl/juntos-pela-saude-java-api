@@ -72,6 +72,7 @@ public class FuncionarioResource {
 
     @DELETE
     @Path("/{id}")
+    @Consumes(MediaType.WILDCARD)
     public Response deletar(@PathParam("id") int id) throws EntidadeNaoEncontradaException, SQLException {
         funcionarioService.deletarFuncionario(id);
         return Response.noContent().build();

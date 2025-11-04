@@ -1,5 +1,7 @@
 package br.com.fiap.service;
 
+import br.com.fiap.dao.ConsultaDao;
+import br.com.fiap.dao.FeedbackConsultaDao;
 import br.com.fiap.dao.FuncionarioDao;
 import br.com.fiap.exception.CampoJaCadastrado;
 import br.com.fiap.exception.EntidadeNaoEncontradaException;
@@ -15,6 +17,12 @@ public class FuncionarioService {
 
     @Inject
     private FuncionarioDao funcionarioDao;
+
+    @Inject
+    private ConsultaDao consultaDao;
+
+    @Inject
+    private FeedbackConsultaDao feedbackDao;
 
     public void cadastrarFuncionario(Funcionario funcionario) throws CampoJaCadastrado,SQLException{
 
@@ -52,6 +60,14 @@ public class FuncionarioService {
     }
 
     public void deletarFuncionario(int codigo) throws EntidadeNaoEncontradaException, SQLException {
+
+        var consultas = consultaDao.buscarPorFuncionario(codigo);
+
+        for (var consulta : consultas){
+            feedbackDao.deletarPorConsulta(consulta.getCodigo());
+        }
+
+        consultaDao.deletarPorFuncionario(codigo);
         funcionarioDao.deletar(codigo);
     }
 }

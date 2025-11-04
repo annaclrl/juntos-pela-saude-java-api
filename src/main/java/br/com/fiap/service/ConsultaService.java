@@ -1,9 +1,6 @@
 package br.com.fiap.service;
 
-import br.com.fiap.dao.ConsultaDao;
-import br.com.fiap.dao.FuncionarioDao;
-import br.com.fiap.dao.MedicoDao;
-import br.com.fiap.dao.PacienteDao;
+import br.com.fiap.dao.*;
 import br.com.fiap.exception.EntidadeNaoEncontradaException;
 import br.com.fiap.exception.RegraNegocioExeption;
 import br.com.fiap.model.Consulta;
@@ -27,6 +24,9 @@ public class ConsultaService {
 
     @Inject
     private FuncionarioDao funcionarioDao;
+
+    @Inject
+    private FeedbackConsultaDao feedbackDao;
 
     public void cadastrarConsulta(Consulta consulta) throws Exception {
         verificarPacienteExistente(consulta);
@@ -78,6 +78,7 @@ public class ConsultaService {
     }
 
     public void deletarConsulta(int codigo) throws EntidadeNaoEncontradaException, SQLException {
+        feedbackDao.deletarPorConsulta(codigo);
         consultaDao.deletar(codigo);
     }
 

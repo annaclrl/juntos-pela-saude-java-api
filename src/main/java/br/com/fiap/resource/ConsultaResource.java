@@ -98,7 +98,6 @@ public class ConsultaResource {
         consulta.setFuncionario(new Funcionario());
         consulta.getFuncionario().setCodigo(dto.getFuncionarioId());
 
-
         consultaService.atualizarConsulta(consulta);
 
         ListarConsultaDto responseDto = mapper.map(consulta, ListarConsultaDto.class);

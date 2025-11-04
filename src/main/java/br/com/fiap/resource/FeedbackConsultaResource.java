@@ -39,27 +39,38 @@ public class FeedbackConsultaResource {
 
         feedbackService.cadastrarFeedback(feedback);
 
+        ListarFeedbackConsultaDto responseDto = new ListarFeedbackConsultaDto();
+        responseDto.setCodigo(feedback.getCodigo());
+        responseDto.setConsultaId(feedback.getConsulta().getCodigo());
+        responseDto.setComentario(feedback.getComentario());
+        responseDto.setNota(feedback.getNota());
+
         URI uri = uriInfo.getAbsolutePathBuilder()
                 .path(String.valueOf(feedback.getCodigo()))
                 .build();
 
-        return Response.created(uri).entity(feedback).build();
+        return Response.created(uri).entity(responseDto).build();
     }
 
     @PUT
     @Path("/{id}")
     public Response atualizar(@PathParam("id") int id, @Valid AtualizarFeedbackConsultaDto dto) throws Exception {
-            FeedbackConsulta feedback = mapper.map(dto, FeedbackConsulta.class);
+        FeedbackConsulta feedback = mapper.map(dto, FeedbackConsulta.class);
 
-            feedback.setCodigo(id);
+        feedback.setCodigo(id);
 
-            Consulta consulta = new Consulta();
-            consulta.setCodigo(dto.getConsultaId());
-            feedback.setConsulta(consulta);
+        Consulta consulta = new Consulta();
+        consulta.setCodigo(dto.getConsultaId());
+        feedback.setConsulta(consulta);
 
-            feedbackService.atualizarFeedback(feedback);
-            ListarFeedbackConsultaDto respondeDto= mapper.map(feedback, ListarFeedbackConsultaDto.class);
-            return Response.ok(respondeDto).build();
+        feedbackService.atualizarFeedback(feedback);
+        ListarFeedbackConsultaDto responseDto = new ListarFeedbackConsultaDto();
+        responseDto.setCodigo(feedback.getCodigo());
+        responseDto.setConsultaId(feedback.getConsulta().getCodigo());
+        responseDto.setComentario(feedback.getComentario());
+        responseDto.setNota(feedback.getNota());
+
+        return Response.ok(responseDto).build();
     }
 
     @GET
@@ -75,8 +86,13 @@ public class FeedbackConsultaResource {
     @Path("/{id}")
     public Response buscarPorCodigo(@PathParam("id") int id) throws EntidadeNaoEncontradaException, SQLException {
         FeedbackConsulta feedback = feedbackService.buscarPorCodigo(id);
-        ListarFeedbackConsultaDto dto = mapper.map(feedback, ListarFeedbackConsultaDto.class);
-        return Response.ok(feedback).build();
+        ListarFeedbackConsultaDto dto = new ListarFeedbackConsultaDto();
+        dto.setCodigo(feedback.getCodigo());
+        dto.setConsultaId(feedback.getConsulta().getCodigo());
+        dto.setComentario(feedback.getComentario());
+        dto.setNota(feedback.getNota());
+
+        return Response.ok(dto).build();
 
     }
 

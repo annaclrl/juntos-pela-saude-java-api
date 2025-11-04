@@ -5,7 +5,7 @@ import br.com.fiap.model.Consulta;
 public class ListarFeedbackConsultaDto {
 
     private int codigo;
-    private Consulta consulta;
+    private int consultaId;
     private String comentario;
     private double nota;
 
@@ -17,12 +17,12 @@ public class ListarFeedbackConsultaDto {
         this.codigo = codigo;
     }
 
-    public Consulta getConsulta() {
-        return consulta;
+    public int getConsultaId() {
+        return consultaId;
     }
 
-    public void setConsulta(Consulta consulta) {
-        this.consulta = consulta;
+    public void setConsultaId(int consultaId) {
+        this.consultaId = consultaId;
     }
 
     public String getComentario() {

@@ -15,11 +15,10 @@ public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
 
     @Override
     public Response toResponse(Throwable exception) {
-
+        exception.printStackTrace();
 
         if (exception instanceof ConstraintViolationException ve) {
             Map<String, String> erros = new LinkedHashMap<>();
-
 
             for (ConstraintViolation<?> violacao : ve.getConstraintViolations()) {
                 String campo = violacao.getPropertyPath().toString();
@@ -35,8 +34,31 @@ public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
 
         if (exception instanceof RegraNegocioExeption e) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(new ErrorResponse(e.getMessage()))
-                    .type(MediaType.APPLICATION_JSON)
+                    .entity(e.getMessage())
+                    .type(MediaType.TEXT_PLAIN)
+                    .build();
+        }
+
+
+        if (exception instanceof CampoJaCadastrado e) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity(e.getMessage())
+                    .type(MediaType.TEXT_PLAIN)
+                    .build();
+        }
+
+
+        if (exception instanceof EntidadeNaoEncontradaException e) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(e.getMessage())
+                    .type(MediaType.TEXT_PLAIN)
+                    .build();
+        }
+
+        if (exception instanceof FeedbackJaExisteException e) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity(e.getMessage())
+                    .type(MediaType.TEXT_PLAIN)
                     .build();
         }
 
@@ -46,7 +68,6 @@ public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }
-
 
     public static class ErrorResponse {
         private String mensagem;
@@ -59,7 +80,6 @@ public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
             return mensagem;
         }
     }
-
 
     public static class ValidationErrorResponse extends ErrorResponse {
         private Map<String, String> campos;

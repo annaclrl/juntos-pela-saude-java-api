@@ -3,6 +3,7 @@ package br.com.fiap.service;
 import br.com.fiap.dao.ConsultaDao;
 import br.com.fiap.dao.FeedbackConsultaDao;
 import br.com.fiap.exception.EntidadeNaoEncontradaException;
+import br.com.fiap.exception.FeedbackJaExisteException;
 import br.com.fiap.model.FeedbackConsulta;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -19,7 +20,13 @@ public class FeedbackConsultaService {
     @Inject
     private ConsultaDao consultaDao;
 
+
     public void cadastrarFeedback(FeedbackConsulta feedback) throws Exception {
+        if (feedback == null)
+            throw new Exception("Feedback não pode ser nulo.");
+
+        if (feedback.getConsulta() == null || feedback.getConsulta().getCodigo() <= 0)
+            throw new Exception("Consulta inválida!");
 
         if (!feedback.notaValida())
             throw new Exception("Nota inválida! Deve ser entre 0 e 5.");
@@ -27,24 +34,20 @@ public class FeedbackConsultaService {
         if (!feedback.comentarioValido())
             throw new Exception("Comentário inválido! Máx. 100 caracteres.");
 
-        if (feedback.getConsulta() == null || feedback.getConsulta().getCodigo() <= 0)
-            throw new Exception("Consulta inválida!");
-
         try {
-            if (consultaDao.buscarPorCodigo(feedback.getConsulta().getCodigo()) == null)
-                throw new Exception("Consulta não encontrada!");
+            consultaDao.buscarPorCodigo(feedback.getConsulta().getCodigo());
         } catch (EntidadeNaoEncontradaException e) {
-            throw new Exception("Consulta não encontrada!");
+            throw new EntidadeNaoEncontradaException("Consulta não encontrada!");
         }
 
         try {
             if (!feedbackDao.listarPorConsulta(feedback.getConsulta().getCodigo()).isEmpty())
-                throw new Exception("Você já deu um feedback para esta consulta!");
-        } catch (SQLException ignored) {
-        }
+                throw new FeedbackJaExisteException((feedback.getConsulta().getCodigo()));
+        } catch (SQLException ignored) {}
 
         feedbackDao.inserir(feedback);
     }
+
 
     public void atualizarFeedback(FeedbackConsulta feedback) throws Exception {
 

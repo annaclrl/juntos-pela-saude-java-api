@@ -1,5 +1,7 @@
 package br.com.fiap.service;
 
+import br.com.fiap.dao.ConsultaDao;
+import br.com.fiap.dao.FeedbackConsultaDao;
 import br.com.fiap.dao.PacienteDao;
 import br.com.fiap.exception.CampoJaCadastrado;
 import br.com.fiap.exception.EntidadeNaoEncontradaException;
@@ -16,6 +18,12 @@ public class PacienteService {
 
     @Inject
     private PacienteDao pacienteDao;
+
+    @Inject
+    private ConsultaDao consultaDao;
+
+    @Inject
+    private FeedbackConsultaDao feedbackDao;
 
     public void cadastrarPaciente(Paciente paciente)  throws CampoJaCadastrado, SQLException {
 
@@ -53,7 +61,15 @@ public class PacienteService {
         pacienteDao.atualizar(paciente);
     }
 
-    public void deletarPaciente(int codigo) throws EntidadeNaoEncontradaException, SQLException {
+    public void deletarPaciente(int codigo) throws SQLException, EntidadeNaoEncontradaException {
+
+        var consultas = consultaDao.buscarPorPaciente(codigo);
+
+        for (var consulta : consultas) {
+            feedbackDao.deletarPorConsulta(consulta.getCodigo());
+        }
+
+        consultaDao.deletarPorPaciente(codigo);
         pacienteDao.deletar(codigo);
     }
 }

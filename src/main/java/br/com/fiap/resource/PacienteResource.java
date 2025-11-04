@@ -74,6 +74,7 @@ public class PacienteResource {
 
     @DELETE
     @Path("/{id}")
+    @Consumes(MediaType.WILDCARD)
     public Response deletar(@PathParam("id") int id)
             throws EntidadeNaoEncontradaException, SQLException {
         pacienteService.deletarPaciente(id);
