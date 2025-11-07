@@ -9,11 +9,12 @@ public abstract class Pessoa {
     private int idade;
     private String telefone1;
     private String telefone2;
+    private String senha;
 
 
     public Pessoa() { }
 
-    public Pessoa(int codigo, String nome, String email, String cpf, int idade,String telefone1, String telefone2) {
+    public Pessoa(int codigo, String nome, String email, String cpf, int idade,String telefone1, String telefone2, String senha) {
         this.codigo = codigo;
         this.nome = nome;
         this.email = email;
@@ -21,6 +22,7 @@ public abstract class Pessoa {
         this.idade = idade;
         this.telefone1 = telefone1;
         this.telefone2 = telefone2;
+        this.senha = senha;
     }
 
     public int getCodigo() {
@@ -79,4 +81,11 @@ public abstract class Pessoa {
         this.telefone2 = telefone2;
     }
 
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
+    }
 }

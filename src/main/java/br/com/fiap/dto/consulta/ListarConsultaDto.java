@@ -13,17 +13,21 @@ public class ListarConsultaDto {
     private int codigo;
 
     @JsonProperty("paciente_id")
-    private int pacienteId;
+    private Integer pacienteId;
 
     @JsonProperty("medico_id")
-    private int medicoId;
+    private Integer medicoId;
 
     @JsonProperty("funcionario_id")
-    private int funcionarioId;
+    private Integer funcionarioId;
 
     private StatusConsulta status;
 
     private LocalDateTime dataHora;
+
+    private String nomeMedico;
+
+    private String especialidadeMedico;
 
     public int getCodigo() {
         return codigo;
@@ -33,27 +37,27 @@ public class ListarConsultaDto {
         this.codigo = codigo;
     }
 
-    public int getPacienteId() {
+    public Integer getPacienteId() {
         return pacienteId;
     }
 
-    public void setPacienteId(int pacienteId) {
+    public void setPacienteId(Integer pacienteId) {
         this.pacienteId = pacienteId;
     }
 
-    public int getMedicoId() {
+    public Integer getMedicoId() {
         return medicoId;
     }
 
-    public void setMedicoId(int medicoId) {
+    public void setMedicoId(Integer medicoId) {
         this.medicoId = medicoId;
     }
 
-    public int getFuncionarioId() {
+    public Integer getFuncionarioId() {
         return funcionarioId;
     }
 
-    public void setFuncionarioId(int funcionarioId) {
+    public void setFuncionarioId(Integer funcionarioId) {
         this.funcionarioId = funcionarioId;
     }
 
@@ -71,5 +75,21 @@ public class ListarConsultaDto {
 
     public void setDataHora(LocalDateTime dataHora) {
         this.dataHora = dataHora;
+    }
+
+    public String getNomeMedico() {
+        return nomeMedico;
+    }
+
+    public void setNomeMedico(String nomeMedico) {
+        this.nomeMedico = nomeMedico;
+    }
+
+    public String getEspecialidadeMedico() {
+        return especialidadeMedico;
+    }
+
+    public void setEspecialidadeMedico(String especialidadeMedico) {
+        this.especialidadeMedico = especialidadeMedico;
     }
 }

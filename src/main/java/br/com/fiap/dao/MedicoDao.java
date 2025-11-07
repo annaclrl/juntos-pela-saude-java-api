@@ -19,8 +19,8 @@ public class MedicoDao {
     public void inserir(Medico medico) throws SQLException {
         String sql = """
             INSERT INTO T_JPS_MEDICO 
-            (ID_MEDICO, NM_MEDICO, EM_MEDICO, CPF_MEDICO, IDD_MEDICO, TEL1_MEDICO, TEL2_MEDICO, CRM_MEDICO, ESP_MEDICO)
-            VALUES (SEQ_MEDICO.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?)
+            (ID_MEDICO, NM_MEDICO, EM_MEDICO, CPF_MEDICO, IDD_MEDICO, TEL1_MEDICO, TEL2_MEDICO, CRM_MEDICO, ESP_MEDICO, PSWD_MEDICO)
+            VALUES (SEQ_MEDICO.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """;
 
         try (Connection conn = dataSource.getConnection();
@@ -34,6 +34,7 @@ public class MedicoDao {
             ps.setString(6, medico.getTelefone2());
             ps.setString(7, medico.getCrm());
             ps.setString(8, medico.getEspecialidade());
+            ps.setString(9, medico.getSenha());
 
             ps.executeUpdate();
 
@@ -151,11 +152,31 @@ public class MedicoDao {
         }
     }
 
+    public List<Medico> buscarPorEspecialidade(String especialidade) throws SQLException {
+        List<Medico> lista = new ArrayList<>();
+        String sql = "SELECT * FROM T_JPS_MEDICO WHERE UPPER(ESP_MEDICO) = UPPER(?)";
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, especialidade);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(parseMedico(rs));
+                }
+            }
+        }
+
+        return lista;
+    }
+
+
+
     public boolean atualizar(Medico medico) throws SQLException, EntidadeNaoEncontradaException {
         String sql = """
             UPDATE T_JPS_MEDICO 
             SET NM_MEDICO=?, EM_MEDICO=?, CPF_MEDICO=?, IDD_MEDICO=?, 
-                TEL1_MEDICO=?, TEL2_MEDICO=?, CRM_MEDICO=?, ESP_MEDICO=? 
+                TEL1_MEDICO=?, TEL2_MEDICO=?, CRM_MEDICO=?, ESP_MEDICO=?, PSWD_MEDICO=? 
             WHERE ID_MEDICO=?
             """;
 
@@ -170,7 +191,8 @@ public class MedicoDao {
             ps.setString(6, medico.getTelefone2());
             ps.setString(7, medico.getCrm());
             ps.setString(8, medico.getEspecialidade());
-            ps.setInt(9, medico.getCodigo());
+            ps.setString(9, medico.getSenha());
+            ps.setInt(10, medico.getCodigo());
 
             if (ps.executeUpdate() == 0) {
                 throw new EntidadeNaoEncontradaException("Médico não encontrado para atualizar!");
@@ -204,7 +226,8 @@ public class MedicoDao {
                 rs.getString("TEL1_MEDICO"),
                 rs.getString("TEL2_MEDICO"),
                 rs.getString("CRM_MEDICO"),
-                rs.getString("ESP_MEDICO")
+                rs.getString("ESP_MEDICO"),
+                rs.getString("PSWD_MEDICO")
         );
     }
 }

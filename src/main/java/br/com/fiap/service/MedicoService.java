@@ -61,6 +61,31 @@ public class MedicoService {
         return medicoDao.buscarPorCodigo(codigo);
     }
 
+    public List<Medico> buscarPorEspecialidade(String especialidade) throws SQLException {
+        if (especialidade == null || especialidade.isBlank()) {
+            throw new SQLException("Especialidade inválida ou não informada");
+        }
+
+        try {
+            List<Medico> medicos = medicoDao.buscarPorEspecialidade(especialidade);
+
+            // Evita retornar null e gerar erro no mapper
+            if (medicos == null) {
+                return List.of();
+            }
+
+            return medicos;
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar médicos por especialidade: " + e.getMessage());
+            throw e; // lança de novo, mas com log
+        } catch (Exception e) {
+            System.err.println("Erro inesperado ao buscar médicos: " + e.getMessage());
+            return List.of(); // retorna vazio para não quebrar o front
+        }
+    }
+
+
+
     public boolean atualizarMedico(Medico medico) throws EntidadeNaoEncontradaException, SQLException {
         return medicoDao.atualizar(medico);
     }

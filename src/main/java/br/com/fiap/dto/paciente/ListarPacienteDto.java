@@ -9,6 +9,7 @@ public class ListarPacienteDto {
     private int idade;
     private String telefone1;
     private String telefone2;
+    private String senha;
 
     public int getCodigo() {
         return codigo;
@@ -64,5 +65,13 @@ public class ListarPacienteDto {
 
     public void setTelefone2(String telefone2) {
         this.telefone2 = telefone2;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 }

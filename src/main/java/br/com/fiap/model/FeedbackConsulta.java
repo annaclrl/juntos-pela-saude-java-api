@@ -58,13 +58,4 @@ public class FeedbackConsulta {
         return comentario != null && comentario.length() <= 500;
     }
 
-    @Override
-    public String toString() {
-        return "\nCódigo: " + codigo +
-                "\nConsulta: " + (consulta != null ? consulta.getCodigo() : "N/A") +
-                "\nNota: " + nota +
-                "\nComentário: " + comentario;
-    }
-
-
 }

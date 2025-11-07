@@ -19,7 +19,7 @@ public class FuncionarioDao {
     public void inserir(Funcionario funcionario) throws SQLException {
         String sql = """
                 INSERT INTO T_JPS_FUNCIONARIO
-                (ID_FUNCIONARIO, NM_FUNCIONARIO, EM_FUNCIONARIO, CPF_FUNCIONARIO, IDD_FUNCIONARIO, TEL1_FUNCIONARIO, TEL2_FUNCIONARIO)
+                (ID_FUNCIONARIO, NM_FUNCIONARIO, EM_FUNCIONARIO, CPF_FUNCIONARIO, IDD_FUNCIONARIO, TEL1_FUNCIONARIO, TEL2_FUNCIONARIO, PSWD_FUNCIONARIO)
                 VALUES (SEQ_FUNCIONARIO.NEXTVAL, ?, ?, ?, ?, ?, ?)
                 """;
 
@@ -32,6 +32,7 @@ public class FuncionarioDao {
             ps.setInt(4, funcionario.getIdade());
             ps.setString(5, funcionario.getTelefone1());
             ps.setString(6, funcionario.getTelefone2());
+            ps.setString(7, funcionario.getSenha());
 
             ps.executeUpdate();
 
@@ -136,7 +137,7 @@ public class FuncionarioDao {
         String sql = """
                 UPDATE T_JPS_FUNCIONARIO
                 SET NM_FUNCIONARIO = ?, EM_FUNCIONARIO = ?, CPF_FUNCIONARIO = ?, IDD_FUNCIONARIO = ?, 
-                    TEL1_FUNCIONARIO = ?, TEL2_FUNCIONARIO = ?
+                    TEL1_FUNCIONARIO = ?, TEL2_FUNCIONARIO = ?, PSWD_FUNCIONARIO = ?
                 WHERE ID_FUNCIONARIO = ?
                 """;
 
@@ -149,7 +150,8 @@ public class FuncionarioDao {
             ps.setInt(4, funcionario.getIdade());
             ps.setString(5, funcionario.getTelefone1());
             ps.setString(6, funcionario.getTelefone2());
-            ps.setInt(7, funcionario.getCodigo());
+            ps.setString(7, funcionario.getSenha());
+            ps.setInt(8, funcionario.getCodigo());
 
             if (ps.executeUpdate() == 0) {
                 throw new EntidadeNaoEncontradaException("Funcionário não encontrado para atualizar!");
@@ -180,7 +182,8 @@ public class FuncionarioDao {
                 rs.getString("CPF_FUNCIONARIO"),
                 rs.getInt("IDD_FUNCIONARIO"),
                 rs.getString("TEL1_FUNCIONARIO"),
-                rs.getString("TEL2_FUNCIONARIO")
+                rs.getString("TEL2_FUNCIONARIO"),
+                rs.getString("PSWD_FUNCIONARIO")
         );
     }
 }

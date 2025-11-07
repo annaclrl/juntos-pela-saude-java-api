@@ -1,5 +1,6 @@
 package br.com.fiap.resource;
 
+import br.com.fiap.dto.consulta.AtualizarConsultaDto;
 import br.com.fiap.dto.consulta.CadastroConsultaDto;
 import br.com.fiap.dto.consulta.ListarConsultaDto;
 import br.com.fiap.model.Consulta;
@@ -35,7 +36,9 @@ public class ConsultaResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response inserir(@Valid CadastroConsultaDto dto, @Context UriInfo uriInfo) throws Exception {
-        Consulta consulta = mapper.map(dto, Consulta.class);
+        Consulta consulta = new Consulta();
+        consulta.setStatus(dto.getStatus());
+        consulta.setDataHora(dto.getDataHora());
 
         consulta.setPaciente(new Paciente());
         consulta.getPaciente().setCodigo(dto.getPacienteId());
@@ -43,33 +46,57 @@ public class ConsultaResource {
         consulta.setMedico(new Medico());
         consulta.getMedico().setCodigo(dto.getMedicoId());
 
-        consulta.setFuncionario(new Funcionario());
-        consulta.getFuncionario().setCodigo(dto.getFuncionarioId());
+        if (dto.getFuncionarioId() != null) {
+            consulta.setFuncionario(new Funcionario());
+            consulta.getFuncionario().setCodigo(dto.getFuncionarioId());
+        }
 
         consultaService.cadastrarConsulta(consulta);
 
+        Consulta consultaCompleta = consultaService.buscarPorCodigo(consulta.getCodigo());
 
         ListarConsultaDto responseDto = new ListarConsultaDto();
-        responseDto.setCodigo(consulta.getCodigo());
-        responseDto.setPacienteId(dto.getPacienteId());
-        responseDto.setMedicoId(dto.getMedicoId());
-        responseDto.setFuncionarioId(dto.getFuncionarioId());
-        responseDto.setStatus(dto.getStatus());
-        responseDto.setDataHora(dto.getDataHora());
+        responseDto.setCodigo(consultaCompleta.getCodigo());
+        responseDto.setPacienteId(consultaCompleta.getPaciente() != null ? consultaCompleta.getPaciente().getCodigo() : null);
+        responseDto.setMedicoId(consultaCompleta.getMedico() != null ? consultaCompleta.getMedico().getCodigo() : null);
+        responseDto.setFuncionarioId(consultaCompleta.getFuncionario() != null ? consultaCompleta.getFuncionario().getCodigo() : null);
+        responseDto.setStatus(consultaCompleta.getStatus());
+        responseDto.setDataHora(consultaCompleta.getDataHora());
+
+        if (consultaCompleta.getMedico() != null) {
+            responseDto.setNomeMedico(consultaCompleta.getMedico().getNome());
+            responseDto.setEspecialidadeMedico(consultaCompleta.getMedico().getEspecialidade());
+        }
 
         URI uri = uriInfo.getAbsolutePathBuilder()
-                .path(String.valueOf(consulta.getCodigo()))
+                .path(String.valueOf(consultaCompleta.getCodigo()))
                 .build();
 
         return Response.created(uri).entity(responseDto).build();
     }
 
+
     @GET
     public Response listarTodos() throws SQLException {
         List<Consulta> consultas = consultaService.listarConsultas();
         List<ListarConsultaDto> dtoList = consultas.stream()
-                .map(c -> mapper.map(c, ListarConsultaDto.class))
+                .map(c -> {
+                    ListarConsultaDto dto = new ListarConsultaDto();
+                    dto.setCodigo(c.getCodigo());
+                    dto.setPacienteId(c.getPaciente() != null ? c.getPaciente().getCodigo() : null);
+                    dto.setMedicoId(c.getMedico() != null ? c.getMedico().getCodigo() : null);
+                    dto.setFuncionarioId(c.getFuncionario() != null ? c.getFuncionario().getCodigo() : null);
+                    dto.setStatus(c.getStatus());
+                    dto.setDataHora(c.getDataHora());
+
+                    if(c.getMedico() != null) {
+                        dto.setNomeMedico(c.getMedico().getNome());
+                        dto.setEspecialidadeMedico(c.getMedico().getEspecialidade());
+                    }
+                    return dto;
+                })
                 .collect(Collectors.toList());
+
         return Response.ok(dtoList).build();
     }
 
@@ -84,7 +111,7 @@ public class ConsultaResource {
     @PUT
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response atualizar(@PathParam("id") int id, @Valid CadastroConsultaDto dto) throws Exception {
+    public Response atualizar(@PathParam("id") int id, @Valid AtualizarConsultaDto dto) throws Exception {
 
         Consulta consulta = mapper.map(dto, Consulta.class);
 
@@ -96,8 +123,11 @@ public class ConsultaResource {
         consulta.setMedico(new Medico());
         consulta.getMedico().setCodigo(dto.getMedicoId());
 
-        consulta.setFuncionario(new Funcionario());
-        consulta.getFuncionario().setCodigo(dto.getFuncionarioId());
+        consulta.setFuncionario(null);
+        if (dto.getFuncionarioId() != null) {
+            consulta.setFuncionario(new Funcionario());
+            consulta.getFuncionario().setCodigo(dto.getFuncionarioId());
+        }
 
         consultaService.atualizarConsulta(consulta);
 

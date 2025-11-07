@@ -37,7 +37,7 @@ public class ConsultaService {
         boolean conflito = consultasExistentes.stream().anyMatch(c ->
                 c.getPaciente().getCodigo() == consulta.getPaciente().getCodigo() &&
                         c.getMedico().getCodigo() == consulta.getMedico().getCodigo() &&
-                        c.getFuncionario().getCodigo() == consulta.getFuncionario().getCodigo() &&
+                        mesmoFuncionario(c, consulta) &&
                         c.getDataHora().equals(consulta.getDataHora())
         );
 
@@ -46,6 +46,12 @@ public class ConsultaService {
         }
 
         consultaDao.inserir(consulta);
+    }
+
+    private boolean mesmoFuncionario(Consulta c1, Consulta c2) {
+        if (c1.getFuncionario() == null && c2.getFuncionario() == null) return true;
+        if (c1.getFuncionario() == null || c2.getFuncionario() == null) return false;
+        return c1.getFuncionario().getCodigo() == c2.getFuncionario().getCodigo();
     }
 
     public void atualizarConsulta(Consulta consulta) throws Exception {

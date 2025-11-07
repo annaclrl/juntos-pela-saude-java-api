@@ -41,6 +41,14 @@ public class CadastroPacienteDto {
     )
     private String telefone2;
 
+    @NotBlank(message = "A senha é obrigatória.")
+    @Size(min = 6, message = "A senha deve ter no mínimo 6 caracteres.")
+    @Pattern(
+            regexp = "^(?!.*(\\$\\$|&)).*$",
+            message = "A senha não pode conter os caracteres '$$' nem '&'."
+    )
+    private String senha;
+
     public String getNome() {
         return nome;
     }
@@ -87,5 +95,13 @@ public class CadastroPacienteDto {
 
     public void setTelefone2(String telefone2) {
         this.telefone2 = telefone2;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 }

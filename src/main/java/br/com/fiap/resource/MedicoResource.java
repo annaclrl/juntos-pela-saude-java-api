@@ -45,6 +45,24 @@ public class MedicoResource {
         return Response.ok(dto).build();
     }
 
+    @GET
+    @Path("/especialidade/{especialidade}")
+    public Response buscarPorEspecialidade(@PathParam("especialidade") String especialidade) throws SQLException {
+        if (especialidade == null || especialidade.isBlank()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Parâmetro 'especialidade' é obrigatório")
+                    .build();
+        }
+
+        List<Medico> medicos = medicoService.buscarPorEspecialidade(especialidade.trim().toUpperCase());
+        List<ListarMedicoDto> dtoList = medicos.stream()
+                .map(m -> mapper.map(m, ListarMedicoDto.class))
+                .collect(Collectors.toList());
+
+        return Response.ok(dtoList).build();
+    }
+
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response inserir(@Valid CadastroMedicoDto dto, @Context UriInfo uriInfo)

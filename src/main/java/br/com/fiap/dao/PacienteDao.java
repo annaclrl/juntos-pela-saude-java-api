@@ -20,8 +20,8 @@ public class PacienteDao{
     public void inserir(Paciente paciente) throws SQLException {
         String sql = """
                 INSERT INTO T_JPS_PACIENTE 
-                (ID_PACIENTE, NM_PACIENTE, EM_PACIENTE, CPF_PACIENTE, IDD_PACIENTE, TEL1_PACIENTE, TEL2_PACIENTE) 
-                VALUES (SEQ_PACIENTE.NEXTVAL, ?, ?, ?, ?, ?,?)
+                (ID_PACIENTE, NM_PACIENTE, EM_PACIENTE, CPF_PACIENTE, IDD_PACIENTE, TEL1_PACIENTE, TEL2_PACIENTE, PSWD_PACIENTE) 
+                VALUES (SEQ_PACIENTE.NEXTVAL, ?, ?, ?, ?, ?,?, ?)
                 """;
 
         try (Connection conn = dataSource.getConnection();
@@ -33,6 +33,7 @@ public class PacienteDao{
             ps.setInt(4, paciente.getIdade());
             ps.setString(5, paciente.getTelefone1());
             ps.setString(6, paciente.getTelefone2());
+            ps.setString(7,paciente.getSenha());
 
             ps.executeUpdate();
 
@@ -134,7 +135,7 @@ public class PacienteDao{
     public boolean atualizar(Paciente paciente) throws SQLException, EntidadeNaoEncontradaException {
         String sql = """
                 UPDATE T_JPS_PACIENTE 
-                SET NM_PACIENTE=?, EM_PACIENTE=?, CPF_PACIENTE=?, IDD_PACIENTE=?, TEL1_PACIENTE=?,  TEL2_PACIENTE=?
+                SET NM_PACIENTE=?, EM_PACIENTE=?, CPF_PACIENTE=?, IDD_PACIENTE=?, TEL1_PACIENTE=?,  TEL2_PACIENTE=?, PSWD_SENHA=?
                 WHERE ID_PACIENTE=?
                 """;
 
@@ -147,7 +148,8 @@ public class PacienteDao{
             ps.setInt(4, paciente.getIdade());
             ps.setString(5, paciente.getTelefone1());
             ps.setString(6, paciente.getTelefone2());
-            ps.setInt(7, paciente.getCodigo());
+            ps.setString(7, paciente.getSenha());
+            ps.setInt(8, paciente.getCodigo());
 
             if (ps.executeUpdate() == 0) {
                 throw new EntidadeNaoEncontradaException("Paciente não encontrado para atualizar!");
@@ -180,7 +182,8 @@ public class PacienteDao{
                 rs.getString("CPF_PACIENTE"),
                 rs.getInt("IDD_PACIENTE"),
                 rs.getString("TEL1_PACIENTE"),
-                rs.getString("TEL2_PACIENTE")
+                rs.getString("TEL2_PACIENTE"),
+                rs.getString("PSWD_PACIENTE")
         );
     }
 }

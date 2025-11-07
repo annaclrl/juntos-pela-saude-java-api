@@ -19,7 +19,6 @@ public class AtualizarConsultaDto {
     @JsonProperty("medico_id")
     private Integer medicoId;
 
-    @NotNull(message = "O funcionário responsável é obrigatório.")
     @JsonProperty("funcionario_id")
     private Integer funcionarioId;
 

@@ -52,6 +52,15 @@ public class CadastroMedicoDto {
     )
     private String crm;
 
+    @NotBlank(message = "A senha é obrigatória.")
+    @Size(min = 6, message = "A senha deve ter no mínimo 6 caracteres.")
+    @Pattern(
+            regexp = "^(?!.*(\\$\\$|&)).*$",
+            message = "A senha não pode conter os caracteres '$$' nem '&'."
+    )
+    private String senha;
+
+
     public String getNome() {
         return nome;
     }
@@ -114,5 +123,13 @@ public class CadastroMedicoDto {
 
     public void setCrm(String crm) {
         this.crm = crm;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 }

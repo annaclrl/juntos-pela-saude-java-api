@@ -31,7 +31,11 @@ public class ConsultaDao {
              PreparedStatement ps = conn.prepareStatement(sql, new String[]{"ID_CONSULTA"})) {
             ps.setInt(1, consulta.getPaciente().getCodigo());
             ps.setInt(2, consulta.getMedico().getCodigo());
-            ps.setInt(3, consulta.getFuncionario().getCodigo());
+            if (consulta.getFuncionario() != null) {
+                ps.setInt(3, consulta.getFuncionario().getCodigo());
+            } else {
+                ps.setNull(3, Types.INTEGER);
+            }
             ps.setTimestamp(4, Timestamp.valueOf(consulta.getDataHora()));
             ps.setString(5, consulta.getStatus().getValorBanco());
 
@@ -41,18 +45,22 @@ public class ConsultaDao {
             if (rs.next()) {
                 consulta.setCodigo(rs.getInt(1));
             }
-        }catch (SQLException e) {
-            // FK pai não encontrado
-            if (e.getErrorCode() == 2291) { // ORA-02291
+        } catch (SQLException e) {
+            if (e.getErrorCode() == 2291) {
                 throw new RegraNegocioExeption("Paciente, Médico ou Funcionário não encontrado no banco.");
             }
-            throw e; // outros erros continuam lançando SQLException
+            throw e;
         }
     }
 
     public List<Consulta> listarTodos() throws SQLException {
         List<Consulta> consultas = new ArrayList<>();
-        String sql = "SELECT * FROM T_JPS_CONSULTA";
+        String sql = """
+                    SELECT c.*, m.NOME AS NOME_MEDICO, m.ESPECIALIDADE AS ESPECIALIDADE_MEDICO
+                    FROM T_JPS_CONSULTA c
+                    LEFT JOIN T_JPS_MEDICO m ON c.ID_MEDICO = m.ID_MEDICO
+                """;
+
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -65,19 +73,26 @@ public class ConsultaDao {
         return consultas;
     }
 
+
     public Consulta buscarPorCodigo(int codigo) throws SQLException, EntidadeNaoEncontradaException {
-        String sql = "SELECT * FROM T_JPS_CONSULTA WHERE ID_CONSULTA = ?";
+        String sql = """
+                    SELECT c.*, m.NOME AS NOME_MEDICO, m.ESPECIALIDADE AS ESPECIALIDADE_MEDICO
+                    FROM T_JPS_CONSULTA c
+                    LEFT JOIN T_JPS_MEDICO m ON c.ID_MEDICO = m.ID_MEDICO
+                    WHERE c.ID_CONSULTA = ?
+                """;
+
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-                ps.setInt(1, codigo);
-                ResultSet rs = ps.executeQuery();
+            ps.setInt(1, codigo);
+            ResultSet rs = ps.executeQuery();
 
-                if (!rs.next()) {
-                    throw new EntidadeNaoEncontradaException("Consulta não encontrada!");
-                }
+            if (!rs.next()) {
+                throw new EntidadeNaoEncontradaException("Consulta não encontrada!");
+            }
 
-                return parseConsulta(rs);
+            return parseConsulta(rs);
         }
     }
 
@@ -118,7 +133,12 @@ public class ConsultaDao {
 
     private List<Consulta> buscarPorCampo(String campo, int valor) throws SQLException {
         List<Consulta> consultas = new ArrayList<>();
-        String sql = "SELECT * FROM T_JPS_CONSULTA WHERE " + campo + " = ?";
+        String sql = String.format("""
+                    SELECT c.*, m.NOME AS NOME_MEDICO, m.ESPECIALIDADE AS ESPECIALIDADE_MEDICO
+                    FROM T_JPS_CONSULTA c
+                    LEFT JOIN T_JPS_MEDICO m ON c.ID_MEDICO = m.ID_MEDICO
+                    WHERE c.%s = ?
+                """, campo);
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -133,6 +153,7 @@ public class ConsultaDao {
         return consultas;
     }
 
+
     private void deletarPorCampo(String campo, int valor) throws SQLException {
         String sql = "DELETE FROM T_JPS_CONSULTA WHERE " + campo + " = ?";
 
@@ -142,7 +163,6 @@ public class ConsultaDao {
             ps.executeUpdate();
         }
     }
-
 
     public List<Consulta> buscarPorPaciente(int idPaciente) throws SQLException {
         return buscarPorCampo("ID_PACIENTE", idPaciente);
@@ -172,11 +192,21 @@ public class ConsultaDao {
         Paciente paciente = new Paciente();
         paciente.setCodigo(rs.getInt("ID_PACIENTE"));
 
-        Medico medico = new Medico();
-        medico.setCodigo(rs.getInt("ID_MEDICO"));
+        Medico medico = null;
+        int medicoId = rs.getInt("ID_MEDICO");
+        if (!rs.wasNull()) {
+            medico = new Medico();
+            medico.setCodigo(medicoId);
+            medico.setNome(rs.getString("NOME_MEDICO"));
+            medico.setEspecialidade(rs.getString("ESPECIALIDADE_MEDICO"));
+        }
 
-        Funcionario funcionario = new Funcionario();
-        funcionario.setCodigo(rs.getInt("ID_FUNCIONARIO"));
+        Funcionario funcionario = null;
+        int funcionarioId = rs.getInt("ID_FUNCIONARIO");
+        if (!rs.wasNull()) {
+            funcionario = new Funcionario();
+            funcionario.setCodigo(funcionarioId);
+        }
 
         StatusConsulta status = StatusConsulta.fromDbValue(rs.getString("ST_CONSULTA"));
         LocalDateTime dataHora = rs.getTimestamp("DT_HR_CONSULTA").toLocalDateTime();
@@ -191,5 +221,6 @@ public class ConsultaDao {
 
         return consulta;
     }
+
 }
 

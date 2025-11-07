@@ -72,20 +72,5 @@ public class Consulta {
         this.dataHora = dataHora;
     }
 
-
-    public String getDataHoraFormatada() {
-        if (dataHora == null) return null;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return dataHora.format(formatter);
-    }
-    @Override
-    public String toString() {
-        return "\nCódigo: " + codigo +
-                "\nPaciente: " + (paciente != null ? "ID " + paciente.getCodigo() : "N/A") +
-                "\nMédico: " + (medico != null ? "ID " + medico.getCodigo() : "N/A") +
-                "\nStatus: " + status +
-                "\nData e Hora: " + (dataHora != null ? getDataHoraFormatada() : "N/A");
-    }
-
 }
 

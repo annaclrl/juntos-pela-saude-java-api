@@ -40,6 +40,15 @@ public class AtualizarMedicoDto {
     @Size(min = 3, max = 50, message = "A especialidade deve ter entre 3 e 50 caracteres.")
     private String especialidade;
 
+    @NotBlank(message = "A senha é obrigatória.")
+    @Size(min = 6, message = "A senha deve ter no mínimo 6 caracteres.")
+    @Pattern(
+            regexp = "^(?!.*(\\$\\$|&)).*$",
+            message = "A senha não pode conter os caracteres '$$' nem '&'."
+    )
+    private String senha;
+
+
 
     public String getNome() {
         return nome;
@@ -95,5 +104,13 @@ public class AtualizarMedicoDto {
 
     public void setEspecialidade(String especialidade) {
         this.especialidade = especialidade;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 }

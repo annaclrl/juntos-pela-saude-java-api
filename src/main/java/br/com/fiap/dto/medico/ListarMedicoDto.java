@@ -11,6 +11,7 @@ public class ListarMedicoDto {
     private String telefone2;
     private String especialidade;
     private String crm;
+    private String senha;
 
     public int getCodigo() {
         return codigo;
@@ -82,5 +83,13 @@ public class ListarMedicoDto {
 
     public void setCrm(String crm) {
         this.crm = crm;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 }
