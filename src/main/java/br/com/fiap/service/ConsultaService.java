@@ -79,6 +79,10 @@ public class ConsultaService {
         return consultaDao.listarTodos();
     }
 
+    public List<Consulta> listarConsultasPorCodigoPaciente(int codigo) throws SQLException {
+        return consultaDao.listarConsultasPorCodigoPaciente(codigo);
+    }
+
     public Consulta buscarPorCodigo(int codigo) throws EntidadeNaoEncontradaException, SQLException {
         return consultaDao.buscarPorCodigo(codigo);
     }

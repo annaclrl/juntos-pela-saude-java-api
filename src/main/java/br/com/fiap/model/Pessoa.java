@@ -77,7 +77,7 @@ public abstract class Pessoa {
         this.telefone1 = telefone1;
     }
 
-    public void setTelefone2(String telefone1) {
+    public void setTelefone2(String telefone2) {
         this.telefone2 = telefone2;
     }
 

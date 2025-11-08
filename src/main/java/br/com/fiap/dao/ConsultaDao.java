@@ -56,15 +56,19 @@ public class ConsultaDao {
     public List<Consulta> listarTodos() throws SQLException {
         List<Consulta> consultas = new ArrayList<>();
         String sql = """
-                    SELECT c.*, m.NOME AS NOME_MEDICO, m.ESPECIALIDADE AS ESPECIALIDADE_MEDICO
+                    SELECT 
+                        c.*, 
+                        m.NM_MEDICO AS NOME_MEDICO, 
+                        m.ESP_MEDICO AS ESPECIALIDADE_MEDICO
                     FROM T_JPS_CONSULTA c
                     LEFT JOIN T_JPS_MEDICO m ON c.ID_MEDICO = m.ID_MEDICO
                 """;
 
 
         try (Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 consultas.add(parseConsulta(rs));
@@ -73,14 +77,43 @@ public class ConsultaDao {
         return consultas;
     }
 
+    public List<Consulta> listarConsultasPorCodigoPaciente(int codigo) throws SQLException {
+        List<Consulta> consultas = new ArrayList<>();
+        String sql = """
+                    SELECT 
+                        c.*, 
+                        m.NM_MEDICO AS NOME_MEDICO, 
+                        m.ESP_MEDICO AS ESPECIALIDADE_MEDICO
+                    FROM T_JPS_CONSULTA c
+                    LEFT JOIN T_JPS_MEDICO m ON c.ID_MEDICO = m.ID_MEDICO
+                    WHERE c.ID_PACIENTE = ?
+                """;
+
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, codigo);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                consultas.add(parseConsulta(rs));
+            }
+        }
+        return consultas;
+    }
 
     public Consulta buscarPorCodigo(int codigo) throws SQLException, EntidadeNaoEncontradaException {
         String sql = """
-                    SELECT c.*, m.NOME AS NOME_MEDICO, m.ESPECIALIDADE AS ESPECIALIDADE_MEDICO
+                    SELECT 
+                        c.*, 
+                        m.NM_MEDICO AS NOME_MEDICO, 
+                        m.ESP_MEDICO AS ESPECIALIDADE_MEDICO
                     FROM T_JPS_CONSULTA c
                     LEFT JOIN T_JPS_MEDICO m ON c.ID_MEDICO = m.ID_MEDICO
                     WHERE c.ID_CONSULTA = ?
                 """;
+
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -134,11 +167,12 @@ public class ConsultaDao {
     private List<Consulta> buscarPorCampo(String campo, int valor) throws SQLException {
         List<Consulta> consultas = new ArrayList<>();
         String sql = String.format("""
-                    SELECT c.*, m.NOME AS NOME_MEDICO, m.ESPECIALIDADE AS ESPECIALIDADE_MEDICO
+                    SELECT c.*, m.NM_MEDICO AS NOME_MEDICO, m.ESP_MEDICO AS ESPECIALIDADE_MEDICO
                     FROM T_JPS_CONSULTA c
                     LEFT JOIN T_JPS_MEDICO m ON c.ID_MEDICO = m.ID_MEDICO
                     WHERE c.%s = ?
                 """, campo);
+
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -152,7 +186,6 @@ public class ConsultaDao {
         }
         return consultas;
     }
-
 
     private void deletarPorCampo(String campo, int valor) throws SQLException {
         String sql = "DELETE FROM T_JPS_CONSULTA WHERE " + campo + " = ?";

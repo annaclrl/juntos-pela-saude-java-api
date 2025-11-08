@@ -101,6 +101,31 @@ public class ConsultaResource {
     }
 
     @GET
+    @Path("/paciente/{codigo}")
+    public Response listarConsultasPorCodigoPaciente(@PathParam("codigo") int codigo) throws SQLException {
+        List<Consulta> consultas = consultaService.listarConsultasPorCodigoPaciente(codigo);
+        List<ListarConsultaDto> dtoList = consultas.stream()
+                .map(c -> {
+                    ListarConsultaDto dto = new ListarConsultaDto();
+                    dto.setCodigo(c.getCodigo());
+                    dto.setPacienteId(c.getPaciente() != null ? c.getPaciente().getCodigo() : null);
+                    dto.setMedicoId(c.getMedico() != null ? c.getMedico().getCodigo() : null);
+                    dto.setFuncionarioId(c.getFuncionario() != null ? c.getFuncionario().getCodigo() : null);
+                    dto.setStatus(c.getStatus());
+                    dto.setDataHora(c.getDataHora());
+
+                    if(c.getMedico() != null) {
+                        dto.setNomeMedico(c.getMedico().getNome());
+                        dto.setEspecialidadeMedico(c.getMedico().getEspecialidade());
+                    }
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        return Response.ok(dtoList).build();
+    }
+
+    @GET
     @Path("/{id}")
     public Response buscarPorCodigo(@PathParam("id") int id) throws EntidadeNaoEncontradaException, SQLException {
         Consulta consulta = consultaService.buscarPorCodigo(id);
