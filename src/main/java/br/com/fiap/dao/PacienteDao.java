@@ -134,30 +134,41 @@ public class PacienteDao{
 
     public boolean atualizar(Paciente paciente) throws SQLException, EntidadeNaoEncontradaException {
         String sql = """
-                UPDATE T_JPS_PACIENTE 
-                SET NM_PACIENTE=?, EM_PACIENTE=?, CPF_PACIENTE=?, IDD_PACIENTE=?, TEL1_PACIENTE=?,  TEL2_PACIENTE=?, PSWD_SENHA=?
-                WHERE ID_PACIENTE=?
-                """;
+            UPDATE T_JPS_PACIENTE 
+            SET NM_PACIENTE=?, EM_PACIENTE=?, CPF_PACIENTE=?, IDD_PACIENTE=?, TEL1_PACIENTE=?, TEL2_PACIENTE=? 
+            """;
+
+        boolean atualizarSenha = paciente.getSenha() != null && !paciente.getSenha().equals("****");
+        if (atualizarSenha) {
+            sql += ", PSWD_PACIENTE=?";
+        }
+
+        sql += " WHERE ID_PACIENTE=?";
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, paciente.getNome());
-            ps.setString(2, paciente.getEmail());
-            ps.setString(3, paciente.getCpf());
-            ps.setInt(4, paciente.getIdade());
-            ps.setString(5, paciente.getTelefone1());
-            ps.setString(6, paciente.getTelefone2());
-            ps.setString(7, paciente.getSenha());
-            ps.setInt(8, paciente.getCodigo());
+            int index = 1;
+            ps.setString(index++, paciente.getNome());
+            ps.setString(index++, paciente.getEmail());
+            ps.setString(index++, paciente.getCpf());
+            ps.setInt(index++, paciente.getIdade());
+            ps.setString(index++, paciente.getTelefone1());
+            ps.setString(index++, paciente.getTelefone2());
+
+            if (atualizarSenha) {
+                ps.setString(index++, paciente.getSenha());
+            }
+
+            ps.setInt(index, paciente.getCodigo());
 
             if (ps.executeUpdate() == 0) {
                 throw new EntidadeNaoEncontradaException("Paciente não encontrado para atualizar!");
             }
-
             return true;
         }
     }
+
 
     public void deletar(int codigo) throws SQLException, EntidadeNaoEncontradaException {
         String sql = "DELETE FROM T_JPS_PACIENTE WHERE ID_PACIENTE=?";

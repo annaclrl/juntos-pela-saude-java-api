@@ -69,18 +69,15 @@ public class MedicoService {
         try {
             List<Medico> medicos = medicoDao.buscarPorEspecialidade(especialidade);
 
-            // Evita retornar null e gerar erro no mapper
             if (medicos == null) {
                 return List.of();
             }
 
             return medicos;
         } catch (SQLException e) {
-            System.err.println("Erro ao buscar médicos por especialidade: " + e.getMessage());
-            throw e; // lança de novo, mas com log
+            throw e;
         } catch (Exception e) {
-            System.err.println("Erro inesperado ao buscar médicos: " + e.getMessage());
-            return List.of(); // retorna vazio para não quebrar o front
+            return List.of();
         }
     }
 

@@ -20,8 +20,9 @@ public class FuncionarioDao {
         String sql = """
                 INSERT INTO T_JPS_FUNCIONARIO
                 (ID_FUNCIONARIO, NM_FUNCIONARIO, EM_FUNCIONARIO, CPF_FUNCIONARIO, IDD_FUNCIONARIO, TEL1_FUNCIONARIO, TEL2_FUNCIONARIO, PSWD_FUNCIONARIO)
-                VALUES (SEQ_FUNCIONARIO.NEXTVAL, ?, ?, ?, ?, ?, ?)
+                VALUES (SEQ_FUNCIONARIO.NEXTVAL, ?, ?, ?, ?, ?, ?, ?)
                 """;
+
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, new String[]{"ID_FUNCIONARIO"})) {

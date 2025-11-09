@@ -30,13 +30,13 @@ public class CadastroMedicoDto {
 
     @NotBlank(message = "O telefone principal é obrigatório.")
     @Pattern(
-            regexp = "\\(?\\d{2}\\)?\\s?\\d{4,5}-?\\d{4}",
+            regexp = "^(\\(?\\d{2}\\)?\\s?)?(9\\d{4}-?\\d{4})$",
             message = "O telefone principal deve estar em um formato válido. Ex: 11912345678"
     )
     private String telefone1;
 
     @Pattern(
-            regexp = "(\\(?\\d{2}\\)?\\s?\\d{4,5}-?\\d{4})?",
+            regexp = "^(\\(?\\d{2}\\)?\\s?)?(9\\d{4}-?\\d{4})$",
             message = "O telefone secundário deve estar em um formato válido. Ex: 11912345678"
     )
     private String telefone2;
