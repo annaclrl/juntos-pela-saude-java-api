@@ -1,5 +1,6 @@
 package br.com.fiap.dto.medico;
 
+import io.smallrye.common.constraint.Nullable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -35,6 +36,7 @@ public class CadastroMedicoDto {
     )
     private String telefone1;
 
+    @Nullable
     @Pattern(
             regexp = "^(\\(?\\d{2}\\)?\\s?)?(9\\d{4}-?\\d{4})$",
             message = "O telefone secundário deve estar em um formato válido. Ex: 11912345678"

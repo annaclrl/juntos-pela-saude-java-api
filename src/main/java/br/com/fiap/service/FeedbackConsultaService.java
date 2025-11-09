@@ -48,7 +48,6 @@ public class FeedbackConsultaService {
         feedbackDao.inserir(feedback);
     }
 
-
     public void atualizarFeedback(FeedbackConsulta feedback) throws Exception {
 
         if (!feedback.notaValida() || !feedback.comentarioValido())

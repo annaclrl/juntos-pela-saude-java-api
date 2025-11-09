@@ -1,8 +1,6 @@
 package br.com.fiap.dto.consulta;
 
-import br.com.fiap.model.Funcionario;
-import br.com.fiap.model.Medico;
-import br.com.fiap.model.Paciente;
+
 import br.com.fiap.model.StatusConsulta;
 import com.fasterxml.jackson.annotation.JsonProperty;
 

@@ -81,8 +81,6 @@ public class MedicoService {
         }
     }
 
-
-
     public boolean atualizarMedico(Medico medico) throws EntidadeNaoEncontradaException, SQLException {
         return medicoDao.atualizar(medico);
     }

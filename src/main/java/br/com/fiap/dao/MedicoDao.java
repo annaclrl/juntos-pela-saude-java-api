@@ -170,8 +170,6 @@ public class MedicoDao {
         return lista;
     }
 
-
-
     public boolean atualizar(Medico medico) throws SQLException, EntidadeNaoEncontradaException {
         String sql = """
             UPDATE T_JPS_MEDICO 

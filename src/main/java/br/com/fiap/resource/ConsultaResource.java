@@ -75,7 +75,6 @@ public class ConsultaResource {
         return Response.created(uri).entity(responseDto).build();
     }
 
-
     @GET
     public Response listarTodos() throws SQLException {
         List<Consulta> consultas = consultaService.listarConsultas();

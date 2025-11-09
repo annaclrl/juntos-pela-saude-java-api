@@ -169,7 +169,6 @@ public class PacienteDao{
         }
     }
 
-
     public void deletar(int codigo) throws SQLException, EntidadeNaoEncontradaException {
         String sql = "DELETE FROM T_JPS_PACIENTE WHERE ID_PACIENTE=?";
 
